@@ -40,9 +40,11 @@ def expandir_urf(df: pd.DataFrame, dict_urf_path: str) -> pd.DataFrame:
     return df_merged
 
 def agro_filtering(df: pd.DataFrame) -> pd.DataFrame:
-    print("Filtrando casos úteis para o agronegócio.")
+    print("Filtrando dados para análise completa.")
+    # Remove apenas registros com flag=0 (inválidos)
     df_filtered = df[df["flag"] != 0]
     df_filtered = df_filtered.drop(columns=["flag"])
+    print(f"Dados filtrados: {len(df_filtered)} registros de {len(df)} totais")
     return df_filtered
 
 def expandir_dados(df: pd.DataFrame) -> pd.DataFrame:

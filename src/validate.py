@@ -5,7 +5,7 @@ def test_validate_data(data: pd.DataFrame, validation_data: pd.DataFrame):
 
     print("Verificando integridade dos dados com os totais para validação.")
 
-    year = 2024
+    year = 2025
 
     bulk_year_lines_total = data.query(f"CO_ANO == {year}").copy().shape[0]
     valid_year_lines_total = (validation_data.query(f"CO_ANO == {year}").copy()["NUMERO_LINHAS"].values[0])
