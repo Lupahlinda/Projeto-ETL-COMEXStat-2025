@@ -177,5 +177,20 @@ A estrutura inicial, conceitos de ETL e parte da implementação foram inspirado
 
 ---
 
+##  Informações Acadêmicas
+
+Este projeto foi desenvolvido como trabalho acadêmico para a disciplina:
+
+**Business Intelligence e Data Warehouse**  
+Professor: **Rodrigo Gonçalves Pinto**  
+Instituição: **IESB - Instituto de Educação Superior de Brasília**  
+Campus: **Ceilândia - DF**
+
+**Aluno:** Luis Henrique Costa  
+**RA:** 24114290041  
+**Curso:** ADS - Análise e Desenvolvimento de Sistemas
+
+---
+
 ##  Desenvolvido para
 Análise de comércio exterior brasileiro - Dados COMEX Stat 2025

@@ -43,4 +43,14 @@ A estrutura inicial e conceitos de ETL foram inspirados nesse repositório base,
 
 ---
 
+## Informações Acadêmicas
+
+- **Disciplina:** Business Intelligence e Data Warehouse
+- **Professor:** Rodrigo Gonçalves Pinto
+- **Instituição:** IESB - Instituto de Educação Superior de Brasília (Campus Ceilândia - DF)
+- **Aluno:** Luis Henrique Costa (RA: 24114290041)
+- **Curso:** ADS - Análise e Desenvolvimento de Sistemas
+
+---
+
 *Documentação atualizada em 2025*
