@@ -2,6 +2,11 @@
 
 Projeto de Extração, Transformação e Carga (ETL) de dados de exportação brasileira do COMEX Stat 2025, com análise preditiva via regressão linear e geração de modelo dimensional para banco de dados.
 
+## Sinta-se a vontade para acessar a wiki do projeto
+
+https://github.com/Lupahlinda/Projeto-ETL-COMEXStat-2025/wiki
+
+
 ##  Funcionalidades
 
 - **Extração**: Leitura de dados CSV locais de exportações 2025
