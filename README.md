@@ -2,10 +2,45 @@
 
 Projeto de Extração, Transformação e Carga (ETL) de dados de exportação brasileira do COMEX Stat 2025, com análise preditiva via regressão linear e geração de modelo dimensional para banco de dados.
 
-## Sinta-se a vontade para acessar a wiki do projeto
+---
 
-https://github.com/Lupahlinda/Projeto-ETL-COMEXStat-2025/wiki
+##  Agradecimentos e Créditos
 
+Este projeto foi desenvolvido com base no trabalho de **[Pedro Tuto](https://github.com/Pedro-Tuto)** - [ETL-Comexstat-export-2024](https://github.com/Pedro-Tuto/ETL-Comexstat-export-2024).
+
+A estrutura inicial e conceitos de ETL foram inspirados nesse repositório base, posteriormente adaptado e expandido para dados de 2025.
+
+---
+
+##  Informações Acadêmicas
+
+| | |
+|:---|:---|
+| **Disciplina** | Business Intelligence e Data Warehouse |
+| **Professor** | Rodrigo Gonçalves Pinto |
+| **Instituição** | IESB - Instituto de Educação Superior de Brasília |
+| **Campus** | Ceilândia - DF |
+| **Aluno** | Luis Henrique Costa |
+| **RA** | 24114290041 |
+| **Curso** | ADS - Análise e Desenvolvimento de Sistemas |
+
+---
+
+##  Sumário
+
+- [Funcionalidades](#-funcionalidades)
+- [Estrutura de Pastas](#-estrutura-de-pastas)
+- [Como Executar](#-como-executar)
+- [Pipeline ETL](#-pipeline-etl)
+- [Arquivos Gerados](#-arquivos-gerados)
+- [Modelo de Dados](#-modelo-de-dados)
+- [Tecnologias](#-tecnologias)
+- [Estrutura do Código](#-estrutura-do-código)
+- [Documentação (Wiki)](#-documentação-wiki)
+- [Repositório Base](#-agradecimentos-e-créditos)
+- [Informações Acadêmicas](#-informações-acadêmicas)
+
+---
 
 ##  Funcionalidades
 
@@ -144,12 +179,18 @@ O projeto implementa modelo dimensional **Star Schema** com 9 tabelas obrigatór
 - **matplotlib**: Visualização de dados
 - **numpy**: Operações numéricas
 
-##  Scripts Disponíveis
+##  Documentação (Wiki)
 
-| Script | Função |
-|--------|--------|
-| `main.py` | Executa pipeline ETL completo |
-| `reset_project.py` | Limpa outputs e cache, preserva dados de input |
+📚 Acesse a documentação completa na **[Wiki do Projeto](https://github.com/Lupahlinda/Projeto-ETL-COMEXStat-2025/wiki)**
+
+Ou consulte os arquivos em [`docs/`](./docs/):
+- [Home](./docs/Home.md) - Visão geral
+- [Arquitetura ETL](./docs/Arquitetura-ETL.md) - Pipeline detalhado
+- [Modelo de Dados](./docs/Modelo-de-Dados.md) - Star Schema
+- [Guia de Uso](./docs/Guia-de-Uso.md) - Como executar
+- [API e Módulos](./docs/API-e-Modulos.md) - Documentação técnica
+
+---
 
 ##  Estrutura do Código
 
@@ -161,36 +202,12 @@ src/
 ├── load.py         # carregar_dados_banco(), gerar_sql_mysql_star_schema(), 
 │                   # gerar_html_modelo_conceitual(), executar_load_completo()
 └── validate.py     # Funções de validação de dados
+
+Scripts principais:
+├── main.py              # Executa pipeline ETL completo
+└── reset_project.py     # Limpa outputs e cache
 ```
 
-##  Créditos e Agradecimentos
-
-Este projeto foi desenvolvido com base no trabalho de **[Pedro Tuto](https://github.com/Pedro-Tuto)** e seu projeto [ETL-Comexstat-export-2024](https://github.com/Pedro-Tuto/ETL-Comexstat-export-2024).
-
-A estrutura inicial, conceitos de ETL e parte da implementação foram inspirados nesse repositório base, que foi então adaptado e expandido para os dados de 2025 com funcionalidades adicionais como:
-
-- Análise preditiva com regressão linear
-- Geração de modelo Star Schema para MySQL
-- Documentação completa via Wiki
-
-**Agradecemos ao Pedro Tuto por compartilhar seu conhecimento e código abertamente!**
-
 ---
 
-##  Informações Acadêmicas
-
-Este projeto foi desenvolvido como trabalho acadêmico para a disciplina:
-
-**Business Intelligence e Data Warehouse**  
-Professor: **Rodrigo Gonçalves Pinto**  
-Instituição: **IESB - Instituto de Educação Superior de Brasília**  
-Campus: **Ceilândia - DF**
-
-**Aluno:** Luis Henrique Costa  
-**RA:** 24114290041  
-**Curso:** ADS - Análise e Desenvolvimento de Sistemas
-
----
-
-##  Desenvolvido para
-Análise de comércio exterior brasileiro - Dados COMEX Stat 2025
+**Desenvolvido para:** Análise de comércio exterior brasileiro - Dados COMEX Stat 2025
