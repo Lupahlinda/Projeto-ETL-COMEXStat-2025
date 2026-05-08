@@ -1,223 +1,162 @@
 # Projeto ETL - Análise de Dados de Exportação COMEX Stat 2025
 
-##  Objetivos do Projeto
+Projeto de Extração, Transformação e Carga (ETL) de dados de exportação brasileira do COMEX Stat 2025, com análise preditiva via regressão linear e geração de modelo dimensional para banco de dados.
 
-- **Etapa 1**: Compreensão da base de dados COMEX Stat
-- **Etapa 2**: Importação e validação de arquivos CSV
-- **Etapa 3**: Processo ETL completo com todas as tabelas obrigatórias
+##  Funcionalidades
+
+- **Extração**: Leitura de dados CSV locais de exportações 2025
+- **Transformação**: Expansão de dados via dicionários (países, estados, URFs, produtos NCM)
+- **Análise Preditiva**: Regressão linear para previsão de valores FOB de exportação
+- **Visualização**: Gráficos comparativos (previsões vs reais, resíduos, distribuição)
+- **Modelagem**: Geração de modelo conceitual HTML e script SQL MySQL (Star Schema)
 
 ##  Estrutura de Pastas
 
 ```
-ETL-Comexstat-export-2024/
-├── dicionarios/          # Dicionários de dados para expansão
-│   ├── dict_bloco.csv      # Blocos econômicos
+Projeto-ETL-COMEXStat-2025/
+├── dicionarios/          # Dicionários de dados para enriquecimento
+│   ├── dict_bloco.csv       # Blocos econômicos
 │   ├── dict_country.csv     # Países
 │   ├── dict_municipio.csv   # Municípios brasileiros
 │   ├── dict_ncm_product.csv # Produtos NCM
-│   ├── dict_sg_uf.csv      # Estados brasileiros
-│   ├── dict_urf.csv        # Unidades de Despacho
-│   └── dict_via.csv        # Vias de transporte
-├── input/                 # Arquivos CSV brutos baixados
-├── output/                # Arquivos processados e resultados
-│   ├── dados_finais.csv    # Dados transformados
-│   ├── modelo_conceitual.html # Modelo de banco de dados
-│   └── grafico_previsao_CARNES.png
-├── src/                   # Código fonte do projeto
-│   ├── extract.py          # Extração de dados
-│   ├── load.py            # Carga no banco de dados
-│   ├── map.py             # Transformação de dados
-│   ├── regressao.py       # Análise preditiva
-│   └── validate.py        # Validação de dados
-├── main.py               # Script principal de execução
-└── requirements.txt       # Dependências do projeto
+│   ├── dict_sg_uf.csv       # Estados brasileiros
+│   ├── dict_urf.csv         # Unidades de Despacho
+│   └── dict_via.csv         # Vias de transporte
+├── input/                # Arquivos CSV de entrada (dados fixos)
+│   ├── Exportacoes_reduzidos.csv
+│   ├── Importacoes_reduzidos.csv
+│   ├── NCM.csv
+│   ├── NCM_UNIDADE.csv
+│   ├── PAIS.csv
+│   ├── PAIS_BLOCO.csv
+│   ├── UF.csv
+│   ├── UF_MUN.csv
+│   ├── URF.csv
+│   └── VIA.csv
+├── output/               # Arquivos gerados
+│   ├── dados_finais.csv        # Dataset processado
+│   ├── modelo_conceitual.html  # Diagrama ER interativo
+│   ├── comexstat_mysql_schema.sql # Script SQL MySQL
+│   └── grafico_previsao_completo.png # Visualização da regressão
+├── src/                  # Código fonte
+│   ├── extract.py        # Leitura de dados CSV
+│   ├── map.py            # Transformação e enriquecimento
+│   ├── regressao.py      # Análise preditiva
+│   ├── load.py           # Geração de modelo e SQL
+│   └── validate.py       # Validações
+├── main.py              # Script principal
+├── reset_project.py     # Script de limpeza/reset
+└── requirements.txt     # Dependências Python
 ```
 
-##  Como Rodar o Projeto
+##  Como Executar
 
 ### Pré-requisitos
 - Python 3.8+
-- Ambiente virtual recomendado
+- pip
 
-### Passos de Instalação
+### Instalação
 
-1. **Clone o repositório**:
-   ```bash
-   git clone <repositorio-url>
-   cd ETL-Comexstat-export-2024
-   ```
+```bash
+# Clone o repositório
+git clone https://github.com/Lupahlinda/Projeto-ETL-COMEXStat-2025.git
+cd Projeto-ETL-COMEXStat-2025
 
-2. **Crie e ative o ambiente virtual**:
-   
-   **Windows**:
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate
-   ```
-   
-   **Linux/Mac**:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **Instale as dependências**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Execute o projeto**:
-   ```bash
-   python main.py
-   ```
-
-##  Fluxo de Execução Completo
-
-### **Fase 1: EXTRAÇÃO (Extract)**
-```
- Baixando dados de Exportação 2025...
-   ├── Download: EXP_2025.csv (113MB)
-   └── Download: TOTAS_CONFERENCIA.csv
+# Instale as dependências
+pip install -r requirements.txt
 ```
 
-### **Fase 2: VALIDAÇÃO**
-```
- Verificando integridade dos dados...
-   ├── Validação de totais de conferência
-   ├── Comparação: número de linhas
-   ├── Comparação: valor FOB total
-   └── Comparação: peso líquido total
- Validado.
-```
+### Execução
 
-### **Fase 3: TRANSFORMAÇÃO (Transform)**
-```
- Processando dados...
-   ├── Detectando valores vazios: Preenchendo com zeros
-   ├── Expandindo estados: 27 estados brasileiros
-   ├── Expandindo países: 281 países
-   ├── Expandindo URFs: 278 unidades de despacho
-   ├── Expandindo produtos NCM: 1.936 produtos únicos
-   └── Filtrando agronegócio: 646.707 registros úteis
+```bash
+# Executar pipeline ETL completo
+python main.py
+
+# Limpar projeto (remover outputs gerados)
+python reset_project.py
 ```
 
-### **Fase 4: ANÁLISE PREDITIVA**
-```
- Aplicando modelo de regressão...
-   ├── Produto alvo: CARNES
-   ├── Features: 10 variáveis preditoras
-   ├── Métricas: MSE e MAE
-   └── Visualização: gráfico de previsões vs reais
-```
+##  Pipeline ETL
 
-### **Fase 5: CARGA (Load)**
-```
- Carregando no banco de dados...
-   ├── Tabela: exportacao (646.707 registros)
-   ├── Tabela: ncm (1.936 produtos)
-   ├── Tabela: paises (281 países)
-   ├── Tabela: blocos (10 blocos econômicos)
-   ├── Tabela: municipios (5 municípios)
-   ├── Tabela: estados (27 estados)
-   ├── Tabela: via (10 vias de transporte)
-   ├── Tabela: urf (278 unidades)
-   └── Tabela: importacao (simulada)
-```
+### 1. Extração (`extract.py`)
+- Lê `input/Exportacoes_reduzidos.csv` com dados de exportação 2025
+- Colunas: CO_ANO, CO_MES, CO_NCM, CO_UNID, CO_PAIS, SG_UF_NCM, CO_VIA, CO_URF, QT_ESTAT, KG_LIQUIDO, VL_FOB, flag
 
-##  Resultados Finais
+### 2. Transformação (`map.py`)
+- **Detectar valores vazios**: Preenche com zeros
+- **Expandir estados**: Merge com dicionário de UF
+- **Expandir países**: Merge com dicionário de países
+- **Expandir URFs**: Merge com dicionário de unidades de despacho
+- **Expandir produtos NCM**: Merge com dicionário de produtos
+- **Filtrar dados**: Remove registros com flag=0 (inválidos)
 
-### **Estatísticas do Processamento**
-- **Registros processados**: 646.707 exportações
-- **Países destino**: 281 países diferentes
-- **Produtos únicos**: 1.936 códigos NCM
-- **Cobertura temporal**: 12 meses de 2025
-- **Validação**: 100% aprovada nos totais de conferência
+### 3. Análise Preditiva (`regressao.py`)
+- **Modelo**: Regressão Linear com One-Hot Encoding para variáveis categóricas
+- **Features**: CO_ANO, CO_MES, CO_NCM, CO_UNID, CO_PAIS, SG_UF_NCM, CO_VIA, CO_URF, QT_ESTAT, KG_LIQUIDO
+- **Target**: VL_FOB (valor FOB da exportação)
+- **Métricas**: MSE, MAE, RMSE, R² Score
+- **Saída**: Gráfico 2x2 com previsões vs reais, resíduos, histograma e painel de métricas
 
-### **Arquivos Gerados**
-1. **`output/dados_finais.csv`** - Dataset limpo e transformado
-2. **`output/modelo_conceitual.html`** - Modelo conceitual do banco de dados
-3. **`output/grafico_previsao_CARNES.png`** - Visualização do modelo preditivo
+### 4. Carga/Modelagem (`load.py`)
+- Gera modelo conceitual HTML com diagrama ER (Mermaid.js)
+- Gera script SQL MySQL com Star Schema:
+  - Dimensões: tempo, produto, país, estado, via, URF
+  - Fato: tabela de exportações
+- Gera arquivo CSV final processado
 
-### **Modelo de Banco de Dados**
-O projeto implementa todas as **9 tabelas obrigatórias**:
+##  Arquivos Gerados
 
-| Tabela | Descrição | Registros |
-|--------|------------|-----------|
-| **Importação** | Dados de importação (simulado) | 0 |
-| **Exportação** | Dados de exportação brasileira | 646.707 |
-| **NCM** | Produtos e classificações | 1.936 |
-| **Países** | Países de destino/origem | 281 |
-| **Blocos** | Blocos econômicos | 10 |
-| **Municípios** | Municípios brasileiros | 5 |
-| **Estados** | Estados brasileiros | 27 |
-| **Via** | Vias de transporte | 10 |
-| **URF** | Unidades de despacho aduaneiro | 278 |
+| Arquivo | Descrição |
+|---------|-----------|
+| `output/dados_finais.csv` | Dataset completo enriquecido |
+| `output/modelo_conceitual.html` | Diagrama ER interativo (abra no navegador) |
+| `output/comexstat_mysql_schema.sql` | Script SQL para criar banco MySQL |
+| `output/grafico_previsao_completo.png` | Visualização da análise de regressão |
 
-##  Tecnologias Utilizadas
+##  Modelo de Dados
 
-### **Bibliotecas Principais**
-- **pandas**: Manipulação e análise de dados
-- **requests**: Download de arquivos da web
-- **scikit-learn**: Machine learning e regressão
+O projeto implementa modelo dimensional **Star Schema** com 9 tabelas obrigatórias:
+
+### Tabelas de Dimensão
+- **dim_tempo**: Ano, mês, trimestre, semestre
+- **dim_produto**: Código NCM, descrição do produto
+- **dim_pais**: Código e nome do país
+- **dim_estado**: Sigla e nome do estado
+- **dim_via**: Código e descrição da via de transporte
+- **dim_urf**: Código e nome da unidade de despacho
+
+### Tabelas de Fato
+- **fato_exportacao**: Métricas de exportação (VL_FOB, KG_LIQUIDO, QT_ESTAT)
+
+### Tabelas Auxiliares
+- **dim_bloco**: Blocos econômicos
+- **dim_municipio**: Municípios brasileiros
+
+##  Tecnologias
+
+- **pandas**: Manipulação de dados
+- **scikit-learn**: Machine learning (regressão linear, métricas)
 - **matplotlib**: Visualização de dados
-- **urllib3**: Tratamento de requisições HTTP
+- **numpy**: Operações numéricas
 
-### **Visualização**
-- **Mermaid.js**: Diagramas de banco de dados interativos
-- **HTML5**: Interface web para modelo conceitual
-- **CSS3**: Design responsivo e moderno
+##  Scripts Disponíveis
 
-##  Conformidade com Requisitos
+| Script | Função |
+|--------|--------|
+| `main.py` | Executa pipeline ETL completo |
+| `reset_project.py` | Limpa outputs e cache, preserva dados de input |
 
-### **Etapa 1 - Compreensão da Base** 
--  Estrutura COMEX Stat compreendida
--  Relacionamentos entre tabelas mapeados
--  Dicionários de dados implementados
+##  Estrutura do Código
 
-### **Etapa 2 - Importação CSV** 
--  Download automático dos arquivos
--  Verificação de estrutura e encoding
--  Validação de consistência inicial
--  Tratamento de separadores e tipos
+```
+src/
+├── extract.py      # ler_dados_csv(), baixar_csv()
+├── map.py          # detectar_valores_vazios(), expandir_dados(), agro_filtering()
+├── regressao.py    # aplicar_regressao_completa() - modelo ML
+├── load.py         # carregar_dados_banco(), gerar_sql_mysql_star_schema(), 
+│                   # gerar_html_modelo_conceitual(), executar_load_completo()
+└── validate.py     # Funções de validação de dados
+```
 
-### **Etapa 3 - Processo ETL** 
--  **Extract**: Download e leitura implementados
--  **Transform**: Todas as transformações aplicadas
-  -  Correção de tipos de dados
-  -  Tratamento de valores ausentes
-  -  Remoção de inconsistências
-  -  Padronização de campos
-  -  Organização de chaves e relacionamentos
--  **Load**: Todas as 9 tabelas obrigatórias implementadas
-
-##  Visualização dos Resultados
-
-Após a execução, acesse:
-- **Modelo conceitual**: Abra `output/modelo_conceitual.html` no navegador
-- **Dados processados**: `output/dados_finais.csv`
-- **Análise preditiva**: `output/grafico_previsao_CARNES.png`
-
-##  Solução de Problemas Comuns
-
-### **Erro de Certificado SSL**
-- **Problema**: `[SSL: CERTIFICATE_VERIFY_FAILED]`
-- **Solução**: Implementado `verify=False` nas requisições HTTP
-
-### **Arquivos de 2025 Não Encontrados**
-- **Problema**: Tentativa de acessar dados inexistentes
-- **Solução**: Verificação prévia de disponibilidade dos arquivos
-
-### **Conflito de Versões**
-- **Solução**: Use sempre ambiente virtual isolado
-
----
-
-##  Próximos Passos Sugeridos
-
-1. **Implementação real de banco**: MySQL/PostgreSQL
-2. **API REST**: Para consumo dos dados processados
-3. **Dashboard interativo**: Com filtros dinâmicos
-4. **Machine Learning**: Modelos mais sofisticados
-5. **Streaming**: Processamento em tempo real
-
-**Desenvolvido para análise de comércio exterior brasileiro - Ano 2025**
+##  Desenvolvido para
+Análise de comércio exterior brasileiro - Dados COMEX Stat 2025
