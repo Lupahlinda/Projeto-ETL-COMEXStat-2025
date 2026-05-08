@@ -43,7 +43,7 @@ ETL-Comexstat-export-2024/
 
 1. **Clone o repositório**:
    ```bash
-   git clone <repositorio-url>
+   git clone https://github.com/Lupahlinda/Projeto-ETL-COMEXStat-2025.git
    cd ETL-Comexstat-export-2024
    ```
 
@@ -52,7 +52,6 @@ ETL-Comexstat-export-2024/
    **Windows**:
    ```bash
    python -m venv venv
-   .\venv\Scripts\activate
    ```
    
    **Linux/Mac**:
