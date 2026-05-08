@@ -35,4 +35,12 @@ Este projeto implementa um pipeline completo de **Extração, Transformação e 
 
 ---
 
+## Créditos
+
+Este projeto foi desenvolvido com base no trabalho de **[Pedro Tuto](https://github.com/Pedro-Tuto)** - [ETL-Comexstat-export-2024](https://github.com/Pedro-Tuto/ETL-Comexstat-export-2024).
+
+A estrutura inicial e conceitos de ETL foram inspirados nesse repositório base, posteriormente adaptado e expandido para dados de 2025.
+
+---
+
 *Documentação atualizada em 2025*

@@ -163,5 +163,19 @@ src/
 └── validate.py     # Funções de validação de dados
 ```
 
+##  Créditos e Agradecimentos
+
+Este projeto foi desenvolvido com base no trabalho de **[Pedro Tuto](https://github.com/Pedro-Tuto)** e seu projeto [ETL-Comexstat-export-2024](https://github.com/Pedro-Tuto/ETL-Comexstat-export-2024).
+
+A estrutura inicial, conceitos de ETL e parte da implementação foram inspirados nesse repositório base, que foi então adaptado e expandido para os dados de 2025 com funcionalidades adicionais como:
+
+- Análise preditiva com regressão linear
+- Geração de modelo Star Schema para MySQL
+- Documentação completa via Wiki
+
+**Agradecemos ao Pedro Tuto por compartilhar seu conhecimento e código abertamente!**
+
+---
+
 ##  Desenvolvido para
 Análise de comércio exterior brasileiro - Dados COMEX Stat 2025
