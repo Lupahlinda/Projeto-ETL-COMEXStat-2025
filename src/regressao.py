@@ -85,6 +85,10 @@ def aplicar_regressao_completa(df, produto=None):
     valor_total_fob = df['VL_FOB'].sum()
     peso_total_kg = df['KG_LIQUIDO'].sum()
     
+    # Calcular top produtos e países para gráficos
+    top_produtos = df.groupby('id_product')['VL_FOB'].sum().sort_values(ascending=False).head(10)
+    top_paises = df.groupby('id_country')['VL_FOB'].sum().sort_values(ascending=False).head(10)
+    
     # Configurar estilo profissional
     plt.style.use('seaborn-v0_8-whitegrid')
     fig = plt.figure(figsize=(18, 12))
@@ -94,58 +98,15 @@ def aplicar_regressao_completa(df, produto=None):
     fig.suptitle(f'📊 Análise de Regressão - COMEX Stat 2025\n{produto_alvo}', 
                  fontsize=16, fontweight='bold', color='#2c3e50', y=0.98)
     
-    # === SUBPLOT 1: Previsões vs Valores Reais ===
+    # ============================================
+    # LINHA 1: CARD DATASET + GRÁFICOS DE DADOS
+    # ============================================
+    
+    # === SUBPLOT 1: Estatísticas do Dataset (CARD) ===
     ax1 = plt.subplot(2, 3, 1)
-    ax1.set_facecolor('#ffffff')
+    ax1.axis('off')
+    ax1.set_facecolor('#f8f9fa')
     
-    # Scatter plot com gradiente de densidade
-    scatter = ax1.scatter(y_test, y_pred, c=y_pred, cmap='viridis', alpha=0.6, s=30, edgecolors='none')
-    
-    # Linha de perfeição
-    min_val = min(y_test.min(), y_pred.min())
-    max_val = max(y_test.max(), y_pred.max())
-    ax1.plot([min_val, max_val], [min_val, max_val], 'r--', linewidth=2, label='Linha Ideal (y=x)', alpha=0.8)
-    
-    ax1.set_xlabel('Valores Reais (VL_FOB)', fontsize=10, fontweight='bold')
-    ax1.set_ylabel('Previsões do Modelo', fontsize=10, fontweight='bold')
-    ax1.set_title('Previsões vs Valores Reais', fontsize=12, fontweight='bold', pad=10)
-    ax1.legend(loc='upper left', framealpha=0.9)
-    plt.colorbar(scatter, ax=ax1, label='Valor Previsto')
-    
-    # === SUBPLOT 2: Resíduos ===
-    ax2 = plt.subplot(2, 3, 2)
-    ax2.set_facecolor('#ffffff')
-    
-    residuos = y_test - y_pred
-    ax2.scatter(y_pred, residuos, alpha=0.5, color='#3498db', s=20)
-    ax2.axhline(y=0, color='red', linestyle='--', linewidth=2, alpha=0.7)
-    ax2.fill_between([y_pred.min(), y_pred.max()], [-mae, -mae], [mae, mae], 
-                     alpha=0.2, color='green', label=f'±MAE ({mae:,.0f})')
-    
-    ax2.set_xlabel('Valores Previstos', fontsize=10, fontweight='bold')
-    ax2.set_ylabel('Resíduos (Real - Previsto)', fontsize=10, fontweight='bold')
-    ax2.set_title('Análise de Resíduos', fontsize=12, fontweight='bold', pad=10)
-    ax2.legend(loc='upper right')
-    
-    # === SUBPLOT 3: Histograma dos Resíduos ===
-    ax3 = plt.subplot(2, 3, 3)
-    ax3.set_facecolor('#ffffff')
-    
-    n, bins, patches = ax3.hist(residuos, bins=50, color='#667eea', alpha=0.7, edgecolor='black', linewidth=0.5)
-    ax3.axvline(x=0, color='red', linestyle='--', linewidth=2, label='Resíduo = 0')
-    ax3.axvline(x=residuos.mean(), color='green', linestyle='-', linewidth=2, label=f'Média: {residuos.mean():,.0f}')
-    
-    ax3.set_xlabel('Valor do Resíduo', fontsize=10, fontweight='bold')
-    ax3.set_ylabel('Frequência', fontsize=10, fontweight='bold')
-    ax3.set_title('Distribuição dos Resíduos', fontsize=12, fontweight='bold', pad=10)
-    ax3.legend()
-    
-    # === SUBPLOT 4: Estatísticas do Dataset ===
-    ax4 = plt.subplot(2, 3, 4)
-    ax4.axis('off')
-    ax4.set_facecolor('#f8f9fa')
-    
-    # Card com estatísticas do CSV processado
     dataset_stats_text = f'''
     ╔══════════════════════════════════════════════════════════════╗
     ║                 📦 ESTATÍSTICAS DO DATASET                   ║
@@ -174,30 +135,63 @@ def aplicar_regressao_completa(df, produto=None):
     ╚══════════════════════════════════════════════════════════════╝
     '''
     
-    ax4.text(0.5, 0.5, dataset_stats_text, transform=ax4.transAxes, fontsize=9,
+    ax1.text(0.5, 0.5, dataset_stats_text, transform=ax1.transAxes, fontsize=9,
              verticalalignment='center', horizontalalignment='center',
              fontfamily='monospace', bbox=dict(boxstyle='round', facecolor='white', 
              edgecolor='#28a745', linewidth=2, alpha=0.95), linespacing=1.1)
     
-    # === SUBPLOT 5: Painel de Métricas do Modelo ===
-    ax5 = plt.subplot(2, 3, 5)
-    ax5.axis('off')
-    ax5.set_facecolor('#f8f9fa')
+    # === SUBPLOT 2: Top 10 Produtos ===
+    ax2 = plt.subplot(2, 3, 2)
+    ax2.set_facecolor('#ffffff')
     
-    # Criar cards de estatísticas
-    stats_text = f'''
+    top_produtos.plot(kind='barh', color='#3498db', ax=ax2, edgecolor='black', linewidth=0.5)
+    ax2.set_xlabel('Valor FOB (R$)', fontsize=10, fontweight='bold')
+    ax2.set_ylabel('Produto (NCM)', fontsize=10, fontweight='bold')
+    ax2.set_title('🏆 Top 10 Produtos por Valor FOB', fontsize=12, fontweight='bold', pad=10)
+    ax2.tick_params(axis='y', labelsize=8)
+    ax2.invert_yaxis()  # Maior valor no topo
+    
+    # Formatar valores no eixo x
+    ax2.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'R${x/1e6:.0f}M'))
+    
+    # === SUBPLOT 3: Top 10 Países ===
+    ax3 = plt.subplot(2, 3, 3)
+    ax3.set_facecolor('#ffffff')
+    
+    top_paises.plot(kind='barh', color='#e74c3c', ax=ax3, edgecolor='black', linewidth=0.5)
+    ax3.set_xlabel('Valor FOB (R$)', fontsize=10, fontweight='bold')
+    ax3.set_ylabel('País de Destino', fontsize=10, fontweight='bold')
+    ax3.set_title('🌍 Top 10 Países por Valor FOB', fontsize=12, fontweight='bold', pad=10)
+    ax3.tick_params(axis='y', labelsize=8)
+    ax3.invert_yaxis()  # Maior valor no topo
+    
+    # Formatar valores no eixo x
+    ax3.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'R${x/1e6:.0f}M'))
+    
+    # ============================================
+    # LINHA 2: CARD MODELO + GRÁFICOS DE MODELO
+    # ============================================
+    
+    residuos = y_test - y_pred
+    
+    # === SUBPLOT 4: Estatísticas do Modelo (CARD) ===
+    ax4 = plt.subplot(2, 3, 4)
+    ax4.axis('off')
+    ax4.set_facecolor('#f8f9fa')
+    
+    model_stats_text = f'''
     ╔══════════════════════════════════════════════════════════════╗
-    ║                    📈 ESTATÍSTICAS DO MODELO                 ║
+    ║                    � ESTATÍSTICAS DO MODELO                 ║
     ╠══════════════════════════════════════════════════════════════╣
     ║                                                              ║
     ║  🔢 Registros Analisados:    {len(df_analise):>15,}          ║
-    ║  📊 Total no Dataset:        {len(df):>15,}                  ║
+    ║  � Total no Dataset:        {len(df):>15,}                  ║
     ║                                                              ║
     ╠══════════════════════════════════════════════════════════════╣
     ║                    🎯 MÉTRICAS DE ERRO                       ║
     ╠══════════════════════════════════════════════════════════════╣
     ║                                                              ║
-    ║  📉 MAE (Erro Absoluto):     R$ {mae:>15,.2f}                ║
+    ║  � MAE (Erro Absoluto):     R$ {mae:>15,.2f}                ║
     ║  📉 RMSE:                    R$ {rmse:>15,.2f}               ║
     ║  📉 MSE:                     R$ {mse:>15,.2e}                ║
     ║                                                              ║
@@ -216,10 +210,42 @@ def aplicar_regressao_completa(df, produto=None):
     • MAE médio de R$ {mae:,.2f} por previsão
     '''
     
-    ax5.text(0.5, 0.5, stats_text, transform=ax5.transAxes, fontsize=9,
+    ax4.text(0.5, 0.5, model_stats_text, transform=ax4.transAxes, fontsize=9,
              verticalalignment='center', horizontalalignment='center',
              fontfamily='monospace', bbox=dict(boxstyle='round', facecolor='white', 
              edgecolor='#667eea', linewidth=2, alpha=0.95), linespacing=1.1)
+    
+    # === SUBPLOT 5: Previsões vs Valores Reais ===
+    ax5 = plt.subplot(2, 3, 5)
+    ax5.set_facecolor('#ffffff')
+    
+    # Scatter plot com gradiente de densidade
+    scatter = ax5.scatter(y_test, y_pred, c=y_pred, cmap='viridis', alpha=0.6, s=30, edgecolors='none')
+    
+    # Linha de perfeição
+    min_val = min(y_test.min(), y_pred.min())
+    max_val = max(y_test.max(), y_pred.max())
+    ax5.plot([min_val, max_val], [min_val, max_val], 'r--', linewidth=2, label='Linha Ideal (y=x)', alpha=0.8)
+    
+    ax5.set_xlabel('Valores Reais (VL_FOB)', fontsize=10, fontweight='bold')
+    ax5.set_ylabel('Previsões do Modelo', fontsize=10, fontweight='bold')
+    ax5.set_title('📊 Previsões vs Valores Reais', fontsize=12, fontweight='bold', pad=10)
+    ax5.legend(loc='upper left', framealpha=0.9)
+    plt.colorbar(scatter, ax=ax5, label='Valor Previsto', fraction=0.046, pad=0.04)
+    
+    # === SUBPLOT 6: Análise de Resíduos ===
+    ax6 = plt.subplot(2, 3, 6)
+    ax6.set_facecolor('#ffffff')
+    
+    ax6.scatter(y_pred, residuos, alpha=0.5, color='#3498db', s=20)
+    ax6.axhline(y=0, color='red', linestyle='--', linewidth=2, alpha=0.7)
+    ax6.fill_between([y_pred.min(), y_pred.max()], [-mae, -mae], [mae, mae], 
+                     alpha=0.2, color='green', label=f'±MAE ({mae:,.0f})')
+    
+    ax6.set_xlabel('Valores Previstos', fontsize=10, fontweight='bold')
+    ax6.set_ylabel('Resíduos (Real - Previsto)', fontsize=10, fontweight='bold')
+    ax6.set_title('📉 Análise de Resíduos', fontsize=12, fontweight='bold', pad=10)
+    ax6.legend(loc='upper right')
     
     plt.tight_layout(rect=[0, 0.02, 1, 0.95])
     
