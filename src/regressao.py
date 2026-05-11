@@ -89,13 +89,23 @@ def aplicar_regressao_completa(df, produto=None):
     top_produtos = df.groupby('id_product')['VL_FOB'].sum().sort_values(ascending=False).head(10)
     top_paises = df.groupby('id_country')['VL_FOB'].sum().sort_values(ascending=False).head(10)
     
+    # Função para truncar nomes longos
+    def truncar_nome(nome, max_len=35):
+        if len(nome) > max_len:
+            return nome[:max_len-3] + '...'
+        return nome
+    
+    # Aplicar truncamento nos índices
+    top_produtos.index = [truncar_nome(str(x)) for x in top_produtos.index]
+    top_paises.index = [truncar_nome(str(x), max_len=25) for x in top_paises.index]
+    
     # Configurar estilo profissional
     plt.style.use('seaborn-v0_8-whitegrid')
     fig = plt.figure(figsize=(18, 12))
     fig.patch.set_facecolor('#f8f9fa')
     
     # Título principal
-    fig.suptitle(f'📊 Análise de Regressão - COMEX Stat 2025\n{produto_alvo}', 
+    fig.suptitle(f' Análise de Regressão - COMEX Stat 2025\n{produto_alvo}', 
                  fontsize=16, fontweight='bold', color='#2c3e50', y=0.98)
     
     # ============================================
@@ -109,28 +119,28 @@ def aplicar_regressao_completa(df, produto=None):
     
     dataset_stats_text = f'''
     ╔══════════════════════════════════════════════════════════════╗
-    ║                 📦 ESTATÍSTICAS DO DATASET                   ║
+    ║                  ESTATÍSTICAS DO DATASET                   ║
     ╠══════════════════════════════════════════════════════════════╣
     ║                                                               ║
-    ║  🔢 Total de Registros:      {len(df):>15,}                  ║
-    ║  📦 Produtos NCM Únicos:     {total_ncm:>15,}                  ║
-    ║  🌍 Países de Destino:       {total_paises:>15,}                  ║
-    ║  🗺️  Estados (UF):            {total_estados:>15,}                  ║
-    ║  🏭 URFs Utilizadas:         {total_urfs:>15,}                  ║
+    ║   Total de Registros:      {len(df):>15,}                  ║
+    ║   Produtos NCM Únicos:     {total_ncm:>15,}                  ║
+    ║   Países de Destino:       {total_paises:>15,}                  ║
+    ║   Estados (UF):            {total_estados:>15,}                  ║
+    ║   URFs Utilizadas:         {total_urfs:>15,}                  ║
     ║                                                               ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║                    💰 TOTAIS DE EXPORTAÇÃO                  ║
+    ║                     TOTAIS DE EXPORTAÇÃO                  ║
     ╠══════════════════════════════════════════════════════════════╣
     ║                                                               ║
-    ║  💵 Valor Total FOB:    R$ {valor_total_fob:>18,.2f}        ║
-    ║  ⚖️  Peso Total (kg):   {peso_total_kg:>18,.2f}               ║
+    ║   Valor Total FOB:    R$ {valor_total_fob:>18,.2f}        ║
+    ║    Peso Total (kg):   {peso_total_kg:>18,.2f}               ║
     ║                                                               ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║                    📊 MÉDIAS POR REGISTRO                   ║
+    ║                     MÉDIAS POR REGISTRO                   ║
     ╠══════════════════════════════════════════════════════════════╣
     ║                                                               ║
-    ║  💵 Média FOB:         R$ {valor_total_fob/len(df):>18,.2f}        ║
-    ║  ⚖️  Média Peso (kg):   {peso_total_kg/len(df):>18,.2f}               ║
+    ║   Média FOB:         R$ {valor_total_fob/len(df):>18,.2f}        ║
+    ║    Média Peso (kg):   {peso_total_kg/len(df):>18,.2f}               ║
     ║                                                               ║
     ╚══════════════════════════════════════════════════════════════╝
     '''
@@ -147,7 +157,7 @@ def aplicar_regressao_completa(df, produto=None):
     top_produtos.plot(kind='barh', color='#3498db', ax=ax2, edgecolor='black', linewidth=0.5)
     ax2.set_xlabel('Valor FOB (R$)', fontsize=10, fontweight='bold')
     ax2.set_ylabel('Produto (NCM)', fontsize=10, fontweight='bold')
-    ax2.set_title('🏆 Top 10 Produtos por Valor FOB', fontsize=12, fontweight='bold', pad=10)
+    ax2.set_title(' Top 10 Produtos por Valor FOB', fontsize=12, fontweight='bold', pad=10)
     ax2.tick_params(axis='y', labelsize=8)
     ax2.invert_yaxis()  # Maior valor no topo
     
@@ -161,7 +171,7 @@ def aplicar_regressao_completa(df, produto=None):
     top_paises.plot(kind='barh', color='#e74c3c', ax=ax3, edgecolor='black', linewidth=0.5)
     ax3.set_xlabel('Valor FOB (R$)', fontsize=10, fontweight='bold')
     ax3.set_ylabel('País de Destino', fontsize=10, fontweight='bold')
-    ax3.set_title('🌍 Top 10 Países por Valor FOB', fontsize=12, fontweight='bold', pad=10)
+    ax3.set_title(' Top 10 Países por Valor FOB', fontsize=12, fontweight='bold', pad=10)
     ax3.tick_params(axis='y', labelsize=8)
     ax3.invert_yaxis()  # Maior valor no topo
     
@@ -181,33 +191,33 @@ def aplicar_regressao_completa(df, produto=None):
     
     model_stats_text = f'''
     ╔══════════════════════════════════════════════════════════════╗
-    ║                    � ESTATÍSTICAS DO MODELO                 ║
+    ║                     ESTATÍSTICAS DO MODELO                 ║
     ╠══════════════════════════════════════════════════════════════╣
     ║                                                              ║
-    ║  🔢 Registros Analisados:    {len(df_analise):>15,}          ║
-    ║  � Total no Dataset:        {len(df):>15,}                  ║
+    ║   Registros Analisados:    {len(df_analise):>15,}          ║
+    ║   Total no Dataset:        {len(df):>15,}                  ║
     ║                                                              ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║                    🎯 MÉTRICAS DE ERRO                       ║
+    ║                     MÉTRICAS DE ERRO                       ║
     ╠══════════════════════════════════════════════════════════════╣
     ║                                                              ║
-    ║  � MAE (Erro Absoluto):     R$ {mae:>15,.2f}                ║
-    ║  📉 RMSE:                    R$ {rmse:>15,.2f}               ║
-    ║  📉 MSE:                     R$ {mse:>15,.2e}                ║
+    ║   MAE (Erro Absoluto):     R$ {mae:>15,.2f}                ║
+    ║   RMSE:                    R$ {rmse:>15,.2f}               ║
+    ║   MSE:                     R$ {mse:>15,.2e}                ║
     ║                                                              ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║                 📊 QUALIDADE DO MODELO                       ║
+    ║                  QUALIDADE DO MODELO                       ║
     ╠══════════════════════════════════════════════════════════════╣
     ║                                                              ║
-    ║  🎯 R² Score:                {r2:>16.4f}                     ║
-    ║  ✅ Precisão:                {(r2*100):>15.2f}%              ║
+    ║   R² Score:                {r2:>16.4f}                     ║
+    ║   Precisão:                {(r2*100):>15.2f}%              ║
     ║                                                              ║
     ╚══════════════════════════════════════════════════════════════╝
     
-    💡 INTERPRETAÇÃO:
-    • R² = {r2:.4f} indica que {(r2*100):.2f}% da variância é explicada
-    • Quanto mais próximo de 1.0, melhor o modelo
-    • MAE médio de R$ {mae:,.2f} por previsão
+    INTERPRETAÇÃO:
+    - R² = {r2:.4f} indica que {(r2*100):.2f}% da variância é explicada
+    - Quanto mais próximo de 1.0, melhor o modelo
+    - MAE médio de R$ {mae:,.2f} por previsão
     '''
     
     ax4.text(0.5, 0.5, model_stats_text, transform=ax4.transAxes, fontsize=9,
@@ -229,7 +239,7 @@ def aplicar_regressao_completa(df, produto=None):
     
     ax5.set_xlabel('Valores Reais (VL_FOB)', fontsize=10, fontweight='bold')
     ax5.set_ylabel('Previsões do Modelo', fontsize=10, fontweight='bold')
-    ax5.set_title('📊 Previsões vs Valores Reais', fontsize=12, fontweight='bold', pad=10)
+    ax5.set_title(' Previsões vs Valores Reais', fontsize=12, fontweight='bold', pad=10)
     ax5.legend(loc='upper left', framealpha=0.9)
     plt.colorbar(scatter, ax=ax5, label='Valor Previsto', fraction=0.046, pad=0.04)
     
@@ -244,7 +254,7 @@ def aplicar_regressao_completa(df, produto=None):
     
     ax6.set_xlabel('Valores Previstos', fontsize=10, fontweight='bold')
     ax6.set_ylabel('Resíduos (Real - Previsto)', fontsize=10, fontweight='bold')
-    ax6.set_title('📉 Análise de Resíduos', fontsize=12, fontweight='bold', pad=10)
+    ax6.set_title(' Análise de Resíduos', fontsize=12, fontweight='bold', pad=10)
     ax6.legend(loc='upper right')
     
     plt.tight_layout(rect=[0, 0.02, 1, 0.95])
@@ -253,7 +263,7 @@ def aplicar_regressao_completa(df, produto=None):
     nome_arquivo = f'output/grafico_previsao_{produto_alvo}.png' if produto else 'output/grafico_previsao_completo.png'
     plt.savefig(nome_arquivo, dpi=150, bbox_inches='tight', facecolor='#f8f9fa')
     plt.show()
-    print(f"📁 Gráfico salvo em: {nome_arquivo}")
+    print(f" Gráfico salvo em: {nome_arquivo}")
     
     return {
         'produto': produto_alvo,
