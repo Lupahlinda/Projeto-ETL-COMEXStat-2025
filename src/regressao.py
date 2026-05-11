@@ -77,9 +77,17 @@ def aplicar_regressao_completa(df, produto=None):
     rmse = np.sqrt(mse)
     print(f"Raiz do Erro Quadrático Médio (RMSE): {rmse:,.2f}")
     
+    # Calcular estatísticas do dataset para o novo card
+    total_ncm = df['CO_NCM'].nunique()
+    total_paises = df['CO_PAIS'].nunique()
+    total_estados = df['SG_UF_NCM'].nunique()
+    total_urfs = df['CO_URF'].nunique() if 'CO_URF' in df.columns else 0
+    valor_total_fob = df['VL_FOB'].sum()
+    peso_total_kg = df['KG_LIQUIDO'].sum()
+    
     # Configurar estilo profissional
     plt.style.use('seaborn-v0_8-whitegrid')
-    fig = plt.figure(figsize=(16, 12))
+    fig = plt.figure(figsize=(18, 12))
     fig.patch.set_facecolor('#f8f9fa')
     
     # Título principal
@@ -87,7 +95,7 @@ def aplicar_regressao_completa(df, produto=None):
                  fontsize=16, fontweight='bold', color='#2c3e50', y=0.98)
     
     # === SUBPLOT 1: Previsões vs Valores Reais ===
-    ax1 = plt.subplot(2, 2, 1)
+    ax1 = plt.subplot(2, 3, 1)
     ax1.set_facecolor('#ffffff')
     
     # Scatter plot com gradiente de densidade
@@ -105,7 +113,7 @@ def aplicar_regressao_completa(df, produto=None):
     plt.colorbar(scatter, ax=ax1, label='Valor Previsto')
     
     # === SUBPLOT 2: Resíduos ===
-    ax2 = plt.subplot(2, 2, 2)
+    ax2 = plt.subplot(2, 3, 2)
     ax2.set_facecolor('#ffffff')
     
     residuos = y_test - y_pred
@@ -120,7 +128,7 @@ def aplicar_regressao_completa(df, produto=None):
     ax2.legend(loc='upper right')
     
     # === SUBPLOT 3: Histograma dos Resíduos ===
-    ax3 = plt.subplot(2, 2, 3)
+    ax3 = plt.subplot(2, 3, 3)
     ax3.set_facecolor('#ffffff')
     
     n, bins, patches = ax3.hist(residuos, bins=50, color='#667eea', alpha=0.7, edgecolor='black', linewidth=0.5)
@@ -132,35 +140,74 @@ def aplicar_regressao_completa(df, produto=None):
     ax3.set_title('Distribuição dos Resíduos', fontsize=12, fontweight='bold', pad=10)
     ax3.legend()
     
-    # === SUBPLOT 4: Painel de Métricas ===
-    ax4 = plt.subplot(2, 2, 4)
+    # === SUBPLOT 4: Estatísticas do Dataset ===
+    ax4 = plt.subplot(2, 3, 4)
     ax4.axis('off')
     ax4.set_facecolor('#f8f9fa')
+    
+    # Card com estatísticas do CSV processado
+    dataset_stats_text = f'''
+    ╔══════════════════════════════════════════════════════════════╗
+    ║                 📦 ESTATÍSTICAS DO DATASET                   ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║                                                               ║
+    ║  🔢 Total de Registros:      {len(df):>15,}                  ║
+    ║  📦 Produtos NCM Únicos:     {total_ncm:>15,}                  ║
+    ║  🌍 Países de Destino:       {total_paises:>15,}                  ║
+    ║  🗺️  Estados (UF):            {total_estados:>15,}                  ║
+    ║  🏭 URFs Utilizadas:         {total_urfs:>15,}                  ║
+    ║                                                               ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║                    💰 TOTAIS DE EXPORTAÇÃO                  ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║                                                               ║
+    ║  💵 Valor Total FOB:    R$ {valor_total_fob:>18,.2f}        ║
+    ║  ⚖️  Peso Total (kg):   {peso_total_kg:>18,.2f}               ║
+    ║                                                               ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║                    📊 MÉDIAS POR REGISTRO                   ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║                                                               ║
+    ║  💵 Média FOB:         R$ {valor_total_fob/len(df):>18,.2f}        ║
+    ║  ⚖️  Média Peso (kg):   {peso_total_kg/len(df):>18,.2f}               ║
+    ║                                                               ║
+    ╚══════════════════════════════════════════════════════════════╝
+    '''
+    
+    ax4.text(0.5, 0.5, dataset_stats_text, transform=ax4.transAxes, fontsize=9,
+             verticalalignment='center', horizontalalignment='center',
+             fontfamily='monospace', bbox=dict(boxstyle='round', facecolor='white', 
+             edgecolor='#28a745', linewidth=2, alpha=0.95), linespacing=1.1)
+    
+    # === SUBPLOT 5: Painel de Métricas do Modelo ===
+    ax5 = plt.subplot(2, 3, 5)
+    ax5.axis('off')
+    ax5.set_facecolor('#f8f9fa')
     
     # Criar cards de estatísticas
     stats_text = f'''
     ╔══════════════════════════════════════════════════════════════╗
-    ║                    📈 ESTATÍSTICAS DO MODELO                  ║
+    ║                    📈 ESTATÍSTICAS DO MODELO                 ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║                                                               ║
-    ║  🔢 Registros Analisados:    {len(df_analise):>15,}                  ║
+    ║                                                              ║
+    ║  🔢 Registros Analisados:    {len(df_analise):>15,}          ║
     ║  📊 Total no Dataset:        {len(df):>15,}                  ║
-    ║                                                               ║
+    ║                                                              ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║                    🎯 MÉTRICAS DE ERRO                        ║
+    ║                    🎯 MÉTRICAS DE ERRO                       ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║                                                               ║
-    ║  📉 MAE (Erro Absoluto):     R$ {mae:>15,.2f}               ║
+    ║                                                              ║
+    ║  📉 MAE (Erro Absoluto):     R$ {mae:>15,.2f}                ║
     ║  📉 RMSE:                    R$ {rmse:>15,.2f}               ║
-    ║  📉 MSE:                     R$ {mse:>15,.2e}               ║
-    ║                                                               ║
+    ║  📉 MSE:                     R$ {mse:>15,.2e}                ║
+    ║                                                              ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║                 📊 QUALIDADE DO MODELO                        ║
+    ║                 📊 QUALIDADE DO MODELO                       ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║                                                               ║
-    ║  🎯 R² Score:                {r2:>16.4f}                 ║
-    ║  ✅ Precisão:                {(r2*100):>15.2f}%                  ║
-    ║                                                               ║
+    ║                                                              ║
+    ║  🎯 R² Score:                {r2:>16.4f}                     ║
+    ║  ✅ Precisão:                {(r2*100):>15.2f}%              ║
+    ║                                                              ║
     ╚══════════════════════════════════════════════════════════════╝
     
     💡 INTERPRETAÇÃO:
@@ -169,7 +216,7 @@ def aplicar_regressao_completa(df, produto=None):
     • MAE médio de R$ {mae:,.2f} por previsão
     '''
     
-    ax4.text(0.5, 0.5, stats_text, transform=ax4.transAxes, fontsize=9,
+    ax5.text(0.5, 0.5, stats_text, transform=ax5.transAxes, fontsize=9,
              verticalalignment='center', horizontalalignment='center',
              fontfamily='monospace', bbox=dict(boxstyle='round', facecolor='white', 
              edgecolor='#667eea', linewidth=2, alpha=0.95), linespacing=1.1)
