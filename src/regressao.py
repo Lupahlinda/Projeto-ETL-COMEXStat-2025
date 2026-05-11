@@ -118,31 +118,31 @@ def aplicar_regressao_completa(df, produto=None):
     ax1.set_facecolor('#f8f9fa')
     
     dataset_stats_text = f'''
-    ╔══════════════════════════════════════════════════════════════╗
-    ║                  ESTATÍSTICAS DO DATASET                   ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                                                               ║
-    ║   Total de Registros:      {len(df):>15,}                  ║
-    ║   Produtos NCM Únicos:     {total_ncm:>15,}                  ║
-    ║   Países de Destino:       {total_paises:>15,}                  ║
-    ║   Estados (UF):            {total_estados:>15,}                  ║
-    ║   URFs Utilizadas:         {total_urfs:>15,}                  ║
-    ║                                                               ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                     TOTAIS DE EXPORTAÇÃO                  ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                                                               ║
-    ║   Valor Total FOB:    R$ {valor_total_fob:>18,.2f}        ║
-    ║    Peso Total (kg):   {peso_total_kg:>18,.2f}               ║
-    ║                                                               ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                     MÉDIAS POR REGISTRO                   ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                                                               ║
-    ║   Média FOB:         R$ {valor_total_fob/len(df):>18,.2f}        ║
-    ║    Média Peso (kg):   {peso_total_kg/len(df):>18,.2f}               ║
-    ║                                                               ║
-    ╚══════════════════════════════════════════════════════════════╝
+    
+                      ESTATÍSTICAS DO DATASET                   
+    
+                                                                   
+       Total de Registros:      {len(df):>15,}                  
+       Produtos NCM Únicos:     {total_ncm:>15,}                  
+       Países de Destino:       {total_paises:>15,}                  
+       Estados (UF):            {total_estados:>15,}                  
+       URFs Utilizadas:         {total_urfs:>15,}                  
+                                                                   
+    
+                         TOTAIS DE EXPORTAÇÃO                  
+    
+                                                                   
+       Valor Total FOB:    R$ {valor_total_fob:>18,.2f}        
+        Peso Total (kg):   {peso_total_kg:>18,.2f}               
+                                                                   
+    
+                         MÉDIAS POR REGISTRO                   
+    
+                                                                   
+       Média FOB:         R$ {valor_total_fob/len(df):>18,.2f}        
+        Média Peso (kg):   {peso_total_kg/len(df):>18,.2f}               
+                                                                   
+    
     '''
     
     ax1.text(0.5, 0.5, dataset_stats_text, transform=ax1.transAxes, fontsize=9,
@@ -190,29 +190,29 @@ def aplicar_regressao_completa(df, produto=None):
     ax4.set_facecolor('#f8f9fa')
     
     model_stats_text = f'''
-    ╔══════════════════════════════════════════════════════════════╗
-    ║                     ESTATÍSTICAS DO MODELO                 ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                                                              ║
-    ║   Registros Analisados:    {len(df_analise):>15,}          ║
-    ║   Total no Dataset:        {len(df):>15,}                  ║
-    ║                                                              ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                     MÉTRICAS DE ERRO                       ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                                                              ║
-    ║   MAE (Erro Absoluto):     R$ {mae:>15,.2f}                ║
-    ║   RMSE:                    R$ {rmse:>15,.2f}               ║
-    ║   MSE:                     R$ {mse:>15,.2e}                ║
-    ║                                                              ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                  QUALIDADE DO MODELO                       ║
-    ╠══════════════════════════════════════════════════════════════╣
-    ║                                                              ║
-    ║   R² Score:                {r2:>16.4f}                     ║
-    ║   Precisão:                {(r2*100):>15.2f}%              ║
-    ║                                                              ║
-    ╚══════════════════════════════════════════════════════════════╝
+    
+                         ESTATÍSTICAS DO MODELO                 
+    
+                                                                  
+       Registros Analisados:    {len(df_analise):>15,}          
+       Total no Dataset:        {len(df):>15,}                  
+                                                                  
+    
+                         MÉTRICAS DE ERRO                       
+    
+                                                                  
+       MAE (Erro Absoluto):     R$ {mae:>15,.2f}                
+       RMSE:                    R$ {rmse:>15,.2f}               
+       MSE:                     R$ {mse:>15,.2e}                
+                                                                  
+    
+                      QUALIDADE DO MODELO                       
+    
+                                                                  
+       R² Score:                {r2:>16.4f}                     
+       Precisão:                {(r2*100):>15.2f}%              
+                                                                  
+    
     
     INTERPRETAÇÃO:
     - R² = {r2:.4f} indica que {(r2*100):.2f}% da variância é explicada
