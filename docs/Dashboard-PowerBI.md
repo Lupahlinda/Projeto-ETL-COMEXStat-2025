@@ -319,10 +319,70 @@ Adicionar botões de navegação:
 
 ### Formatos de Exportação
 
-Disponibilizar opções de:
-- PDF (relatório completo)
-- PowerPoint (slides individuais)
-- Excel (dados brutos)
+#### Como Exportar no Power BI Desktop:
+
+**1. Exportar para PDF:**
+```
+Arquivo → Exportar → Exportar para PDF
+```
+- Selecione as páginas desejadas (todas ou específicas)
+- Escolha se inclui filtros aplicados
+- Clique em "Exportar"
+- O PDF mantém formatação, cores e layout
+
+**2. Exportar para PowerPoint:**
+```
+Arquivo → Exportar → Exportar para PowerPoint
+```
+- Gera slides individuais para cada página do relatório
+- Cada slide é uma imagem estática do dashboard
+- Útil para apresentações acadêmicas/executivas
+- Mantém qualidade visual mas sem interatividade
+
+**3. Exportar Dados para Excel:**
+```
+Clique no visual → ... (reticências) → Exportar dados
+```
+- **Dados resumidos:** Exporta os dados agregados do visual
+- **Dados subjacentes:** Exporta dados brutos da tabela fonte
+- Formato .xlsx, pronto para análise adicional
+
+**4. Publicar no Power BI Service (Nuvem):**
+```
+Home → Publicar → Selecionar workspace
+```
+- Requer conta Microsoft (gratuita ou corporativa)
+- Permite compartilhar via link
+- Atualizações automáticas com refresh agendado
+- Acesso via navegador e aplicativo mobile
+
+---
+
+## Guia de Exportação Acadêmica
+
+### Para Entrega na Faculdade (IESB)
+
+**Formatos recomendados:**
+
+1. **PDF (OBRIGATÓRIO)**
+   - Nome do arquivo: `Dashboard_COMEX_2025_RA_24114290041.pdf`
+   - Incluir todas as páginas
+   - Verificar se todos os visuais estão legíveis
+
+2. **PowerPoint (OPCIONAL - para apresentação)**
+   - Nome: `Apresentacao_COMEX_2025_RA_24114290041.pptx`
+   - Adicionar comentários explicativos nos slides
+
+3. **Arquivo .pbix (FONTE)**
+   - Nome: `Dashboard_COMEX_2025_RA_24114290041.pbix`
+   - Compactar com os dados ou incluir instruções de conexão
+
+**Checklist antes de exportar:**
+- [ ] Filtros padrão aplicados (ano = 2025)
+- [ ] Títulos e labels visíveis
+- [ ] Paleta de cores consistente
+- [ ] Sem dados sensíveis expostos
+- [ ] Legenda dos gráficos legível
 
 ---
 
