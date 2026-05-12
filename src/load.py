@@ -596,14 +596,7 @@ def gerar_html_modelo_conceitual(df: pd.DataFrame, output_path: str = "output/mo
 <body>
     <div class="container">
         <h1> Modelo Conceitual Completo - Banco de Dados COMEX Stat</h1>
-        
-        <div class="success">
-            <strong> Conformidade 100%:</strong><br>
-            • Todas as 9 tabelas obrigatórias implementadas<br>
-            • Estrutura normalizada em 3FN<br>
-            • Ano de referência: 2025
-        </div>
-        
+                
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-number">{total_exportacoes:,}</div>
