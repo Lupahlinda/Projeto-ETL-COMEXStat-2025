@@ -6,26 +6,22 @@ from src.load import executar_load_completo
 URL_BASE = "https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_2025.csv"
 URL_VALIDACAO = "https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_TOTAIS_CONFERENCIA.csv"
 
-# Usando dados locais fixos (não baixa da internet)
-baixar_csv(URL_BASE, "EXP_2025.csv")
-baixar_totais_validacao(URL_VALIDACAO, "2025_validation.csv")
+# Configuração: True = dados locais (padrão), False = baixar do COMEX Stat
+USAR_DADOS_LOCAIS = True
 
-# Lendo dados do arquivo local fixo
+baixar_csv(URL_BASE, "EXP_2025.csv", usar_dados_locais=USAR_DADOS_LOCAIS)
+baixar_totais_validacao(URL_VALIDACAO, "2025_validation.csv", usar_dados_locais=USAR_DADOS_LOCAIS)
+
 df = ler_dados_csv(r"input\Exportacoes_reduzidos.csv")
-print(f"Dados carregados: {len(df)} registros de exportacoes")
+print(f"Dados carregados: {len(df)} registros")
 
-# Detectando valores vazios
 df = detectar_valores_vazios(df)
-# Expandindo os dados
 df = expandir_dados(df)
 
-# Aplicando modelo de regressão para TODOS os produtos
 resultado = aplicar_regressao_completa(df)
 
 print("Consolidando arquivo final.")
-print(df)
 df.to_csv(r"output\dados_finais.csv", index=False)
 
-# Fase Load - Carregamento no banco de dados
 print("\n=== FASE LOAD ===")
 executar_load_completo(df, r"output\dados_finais.csv")

@@ -207,20 +207,6 @@ Projeto-ETL-COMEXStat-2025/
 ├── main.py              # Script principal
 └── requirements.txt     # Dependências Python
 ```
-
----
-
-## Próximos Passos
-
-Após configurar o banco e conectar ao Power BI:
-
-1. **Criar Dashboards** - Desenvolva visualizações para responder às perguntas de negócio
-2. **Adicionar Filtros** - Crie segmentações por período, país, produto
-3. **Publicar** - Compartilhe os dashboards no Power BI Service
-4. **Automatizar** - Configure atualização automática dos dados
-
----
-
 ## Suporte
 
 Para mais informações, consulte:
