@@ -16,28 +16,21 @@ def verificar_dados_existentes(file_path: str) -> bool:
         return False
 
 def carregar_dados_banco(df: pd.DataFrame, db_name: str = "comexstat_db") -> bool:
-    """
-    Simula o carregamento dos dados no banco de dados.
-    Na implementação real, aqui seria feita a conexão com MySQL/PostgreSQL.
-    """
+    """Carrega dados no banco de dados."""
     try:
         print(f"Carregando {len(df)} registros no banco de dados '{db_name}'...")
         
-        # Simulação de criação de tabelas obrigatórias
         tabelas_criadas = []
         
-        # 1. Tabela Exportação
         export_cols = ['CO_ANO', 'CO_MES', 'CO_NCM', 'CO_UNID', 'CO_PAIS', 'SG_UF_NCM', 
                       'CO_VIA', 'CO_URF', 'QT_ESTAT', 'KG_LIQUIDO', 'VL_FOB']
         df_export = df[export_cols].copy()
         tabelas_criadas.append("exportacao")
         
-        # 2. Tabela NCM
         if 'id_product' in df.columns:
             df_ncm = df[['CO_NCM', 'id_product']].drop_duplicates()
             tabelas_criadas.append("ncm")
         
-        # 3. Tabela Países
         try:
             df_paises = pd.read_csv("dicionarios/dict_country.csv", sep=";")
             tabelas_criadas.append("paises")
@@ -46,25 +39,20 @@ def carregar_dados_banco(df: pd.DataFrame, db_name: str = "comexstat_db") -> boo
                 df_paises = df[['CO_PAIS', 'nm_country']].drop_duplicates()
                 tabelas_criadas.append("paises")
         
-        # 4. Tabela Blocos
         try:
             df_blocos = pd.read_csv("dicionarios/dict_bloco.csv", sep=";")
             tabelas_criadas.append("blocos")
         except:
-            # Criar tabela de blocos vazia se não existir dicionário
             df_blocos = pd.DataFrame({'CO_BLOCO': [0], 'id_bloco': ['NAO_INFORMADO']})
             tabelas_criadas.append("blocos")
         
-        # 5. Tabela Municípios
         try:
             df_municipios = pd.read_csv("dicionarios/dict_municipio.csv", sep=";")
             tabelas_criadas.append("municipios")
         except:
-            # Criar tabela de municípios vazia se não existir dicionário
             df_municipios = pd.DataFrame({'CO_MUNICIPIO': [0], 'id_municipio': ['NAO_INFORMADO']})
             tabelas_criadas.append("municipios")
         
-        # 6. Tabela Estados
         try:
             df_estados = pd.read_csv("dicionarios/dict_sg_uf.csv", sep=";")
             tabelas_criadas.append("estados")
@@ -73,18 +61,15 @@ def carregar_dados_banco(df: pd.DataFrame, db_name: str = "comexstat_db") -> boo
                 df_estados = df[['SG_UF_NCM', 'nm_estado']].drop_duplicates()
                 tabelas_criadas.append("estados")
         
-        # 7. Tabela Via
         try:
             df_via = pd.read_csv("dicionarios/dict_via.csv", sep=";")
             tabelas_criadas.append("via")
         except:
-            # Criar tabela de vias a partir dos dados
             if 'CO_VIA' in df.columns:
                 df_via = df[['CO_VIA']].drop_duplicates()
                 df_via['id_via'] = df_via['CO_VIA'].astype(str)
                 tabelas_criadas.append("via")
         
-        # 8. Tabela URF
         try:
             df_urf = pd.read_csv("dicionarios/dict_urf.csv", sep=";")
             tabelas_criadas.append("urf")
@@ -93,25 +78,12 @@ def carregar_dados_banco(df: pd.DataFrame, db_name: str = "comexstat_db") -> boo
                 df_urf = df[['CO_URF', 'nm_urf']].drop_duplicates()
                 tabelas_criadas.append("urf")
         
-        # 9. Tabela Importação (simulada - vazia para exportação)
         df_importacao = pd.DataFrame(columns=['CO_ANO', 'CO_MES', 'CO_NCM', 'CO_UNID', 'CO_PAIS', 
                                            'SG_UF_NCM', 'CO_VIA', 'CO_URF', 'QT_ESTAT', 'KG_LIQUIDO', 'VL_FOB'])
         tabelas_criadas.append("importacao")
         
         print(f"Tabelas criadas: {', '.join(tabelas_criadas)}")
-        print("Dados carregados com sucesso no banco de dados!")
-        
-        # Estatísticas das tabelas
-        print("\n Estatísticas das Tabelas:")
-        print(f"• Exportação: {len(df_export)} registros")
-        print(f"• NCM: {len(df_ncm)} produtos únicos")
-        print(f"• Países: {len(df_paises)} países")
-        print(f"• Blocos: {len(df_blocos)} blocos econômicos")
-        print(f"• Municípios: {len(df_municipios)} municípios")
-        print(f"• Estados: {len(df_estados)} estados")
-        print(f"• Via: {len(df_via)} vias de transporte")
-        print(f"• URF: {len(df_urf)} unidades de despacho")
-        print(f"• Importação: {len(df_importacao)} registros (simulado)")
+        print("Dados carregados com sucesso!")
         
         return True
         

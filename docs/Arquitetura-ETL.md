@@ -17,8 +17,40 @@ O pipeline ETL processa dados de exportação brasileira em 4 fases principais:
 
 ## Fase 1: EXTRAÇÃO (`extract.py`)
 
+### Opções de Fonte de Dados
+
+O pipeline ETL suporta **duas opções** para obtenção dos dados:
+
+#### Opção 1: Dados Locais (Padrão)
+- Usa arquivos CSV pré-existentes na pasta `input/`
+- Arquivo principal: `input/Exportacoes_reduzidos.csv`
+- Vantagens: Mais rápido, sem dependência de internet, dados fixos
+- Uso recomendado: Desenvolvimento e testes
+
+#### Opção 2: Download do COMEX Stat
+- Baixa dados diretamente do portal COMEX Stat
+- Vantagens: Dados atualizados, flexibilidade de período
+- Requisitos: Conexão com internet, URL válida do COMEX
+- Uso recomendado: Produção, dados em tempo real
+
+### Como Configurar
+
+No `main.py`, ao chamar a função `baixar_csv()`:
+
+```python
+# Usar dados locais (padrão)
+arquivo = baixar_csv(url="https://comexstat.mdic.gov.br/...", 
+                     filename="input/dados.csv", 
+                     usar_dados_locais=True)
+
+# Baixar do COMEX Stat
+arquivo = baixar_csv(url="https://comexstat.mdic.gov.br/...", 
+                     filename="input/dados.csv", 
+                     usar_dados_locais=False)
+```
+
 ### Entradas
-- `input/Exportacoes_reduzidos.csv` - Dados de exportação 2025
+- `input/Exportacoes_reduzidos.csv` - Dados de exportação 2025 (local)
 - Dicionários em `dicionarios/` para enriquecimento
 
 ### Colunas do CSV
@@ -39,8 +71,9 @@ O pipeline ETL processa dados de exportação brasileira em 4 fases principais:
 
 ### Funções Principais
 ```python
-ler_dados_csv(file_path, delimiter=";")  # Lê CSV
-baixar_csv(url, filename)                  # Placeholder (usa dados locais)
+ler_dados_csv(file_path, delimiter=";")                    # Lê CSV
+baixar_csv(url, filename, usar_dados_locais=True)         # Baixa ou usa local
+baixar_totais_validacao(url, filename, usar_dados_locais=True)  # Validação
 ```
 
 ---
