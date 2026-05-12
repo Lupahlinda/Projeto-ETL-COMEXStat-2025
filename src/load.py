@@ -731,36 +731,21 @@ erDiagram
         string CO_MUNICIPIO FK
     }}
     
-    IMPORTACAO ||--o| PAISES : "CO_PAIS"
-    IMPORTACAO ||--o| ESTADOS : "SG_UF_NCM"
-    IMPORTACAO ||--o| URF : "CO_URF"
-    IMPORTACAO ||--o| NCM : "CO_NCM"
-    IMPORTACAO ||--o| VIA : "CO_VIA"
+    IMPORTACAO ||--o| PAISES : "N:1"
+    IMPORTACAO ||--o| ESTADOS : "N:1"
+    IMPORTACAO ||--o| URF : "N:1"
+    IMPORTACAO ||--o| NCM : "N:1"
+    IMPORTACAO ||--o| VIA : "N:1"
     
-    EXPORTACAO ||--o| PAISES : "CO_PAIS"
-    EXPORTACAO ||--o| ESTADOS : "SG_UF_NCM"
-    EXPORTACAO ||--o| URF : "CO_URF"
-    EXPORTACAO ||--o| NCM : "CO_NCM"
-    EXPORTACAO ||--o| VIA : "CO_VIA"
+    EXPORTACAO ||--o| PAISES : "N:1"
+    EXPORTACAO ||--o| ESTADOS : "N:1"
+    EXPORTACAO ||--o| URF : "N:1"
+    EXPORTACAO ||--o| NCM : "N:1"
+    EXPORTACAO ||--o| VIA : "N:1"
     
-    PAISES ||--o| BLOCOS : "CO_BLOCO"
-    MUNICIPIOS ||--o| ESTADOS : "SG_UF_NCM"
-    URF ||--o| MUNICIPIOS : "CO_MUNICIPIO"
-        </div>
-        
-        <div class="info">
-            <strong> Detalhes do Modelo:</strong><br>
-            • Chaves primárias compostas nas tabelas de transações<br>
-            • Normalização em 3FN para eliminar redundância<br>
-            • Relacionamentos many-to-many resolvidos<br>
-            • Integridade referencial garantida
-        </div>
-        
-        <div class="warning">
-            <strong> Observações:</strong><br>
-            • Tabela Importação simulada (dados de exportação apenas)<br>
-            • Alguns dicionários criados para demonstração<br>
-            • Implementação real requer conexão MySQL/PostgreSQL
+    PAISES ||--o| BLOCOS : "N:1"
+    MUNICIPIOS ||--o| ESTADOS : "N:1"
+    URF ||--o| MUNICIPIOS : "N:1"
         </div>
         
         <div class="timestamp">
