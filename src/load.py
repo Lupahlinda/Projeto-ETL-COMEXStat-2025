@@ -92,13 +92,13 @@ def carregar_dados_banco(df: pd.DataFrame, db_name: str = "comexstat_db") -> boo
         return False
 
 def gerar_sql_mysql_star_schema(df: pd.DataFrame):
-    """Gera script SQL completo para MySQL com modelo dimensional Star Schema."""
+    """Gera script SQL completo para MySQL com modelo dimensional Star Schema"""
     
-    print("Gerando script SQL MySQL com Star Schema...")
+    print("Gerando script SQL MySQL com Star Schema")
     
     sql_content = f"""-- =====================================================
 -- COMEX Stat 2025 - Banco de Dados MySQL
--- Modelo Dimensional: Star Schema
+-- Modelo Dimensional: Star Schema (baseado no WIP.drawio.xml)
 -- Tecnologias: MySQL, Power BI Desktop, CSV
 -- Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}
 -- =====================================================
@@ -115,107 +115,114 @@ USE comexstat_db;
 -- TABELAS DE DIMENSÃO (Dimension Tables)
 -- =====================================================
 
--- Dimensão Tempo (Time Dimension)
-CREATE TABLE dim_tempo (
-    tempo_id INT AUTO_INCREMENT PRIMARY KEY,
-    CO_ANO INT NOT NULL,
-    CO_MES INT NOT NULL,
-    nome_mes VARCHAR(20),
-    trimestre INT,
-    semestre INT,
-    nome_trimestre VARCHAR(15),
-    ano_mes VARCHAR(7),
-    UNIQUE KEY uk_ano_mes (CO_ANO, CO_MES)
+-- Dimensão URF
+CREATE TABLE dim_urf (
+    id_urf INT PRIMARY KEY,
+    nome_urf VARCHAR(100) NOT NULL
 );
 
--- Dimensão Produto (Product Dimension)
-CREATE TABLE dim_produto (
-    produto_id INT AUTO_INCREMENT PRIMARY KEY,
-    CO_NCM BIGINT NOT NULL UNIQUE,
-    id_product VARCHAR(100),
-    descricao_produto TEXT,
-    categoria_produto VARCHAR(50),
-    INDEX idx_id_product (id_product),
-    INDEX idx_categoria (categoria_produto)
-);
-
--- Dimensão País (Country Dimension)
-CREATE TABLE dim_pais (
-    pais_id INT AUTO_INCREMENT PRIMARY KEY,
-    CO_PAIS INT NOT NULL UNIQUE,
-    id_country VARCHAR(100),
-    nome_pais VARCHAR(100),
-    CO_BLOCO INT,
-    nome_bloco VARCHAR(50),
-    INDEX idx_bloco (CO_BLOCO)
-);
-
--- Dimensão Localidade (Location Dimension)
-CREATE TABLE dim_localidade (
-    localidade_id INT AUTO_INCREMENT PRIMARY KEY,
-    SG_UF_NCM CHAR(2) NOT NULL,
-    nm_estado VARCHAR(50),
-    CO_URF INT NOT NULL,
-    id_urf VARCHAR(100),
-    nm_urf VARCHAR(100),
-    CO_MUNICIPIO INT,
-    id_municipio VARCHAR(100),
-    nome_municipio VARCHAR(100),
-    UNIQUE KEY uf_urf (SG_UF_NCM, CO_URF),
-    INDEX idx_estado (SG_UF_NCM),
-    INDEX idx_urf (CO_URF)
-);
-
--- Dimensão Via Transporte (Transport Dimension)
+-- Dimensão Via
 CREATE TABLE dim_via (
-    via_id INT AUTO_INCREMENT PRIMARY KEY,
-    CO_VIA INT NOT NULL UNIQUE,
-    id_via VARCHAR(50),
-    descricao_via VARCHAR(100),
-    INDEX idx_descricao (descricao_via)
+    id_via INT PRIMARY KEY,
+    nome_via VARCHAR(100) NOT NULL
 );
 
--- Dimensão Unidade Medida (Unit Dimension)
+-- Dimensão País
+CREATE TABLE dim_pais (
+    id_pais INT PRIMARY KEY,
+    nome_pais_portugues VARCHAR(300) NOT NULL,
+    nome_pais_ingles VARCHAR(300) NOT NULL,
+    nome_pais_espanhol VARCHAR(300) NOT NULL
+);
+
+-- Dimensão Estado
+CREATE TABLE dim_estado (
+    id_estado INT PRIMARY KEY,
+    nome_estado VARCHAR(300) NOT NULL,
+    sg_uf CHAR(2) NOT NULL,
+    nome_regiao VARCHAR(300) NOT NULL
+);
+
+-- Dimensão Município
+CREATE TABLE dim_municipio (
+    id_municipio INT PRIMARY KEY,
+    nome_municipio VARCHAR(400),
+    id_estado INT,
+    FOREIGN KEY (id_estado) REFERENCES dim_estado(id_estado)
+);
+
+-- Dimensão NCM
+CREATE TABLE dim_ncm (
+    id_ncm INT PRIMARY KEY,
+    nome_ncm_portugues VARCHAR(1000) NOT NULL,
+    nome_ncm_ingles VARCHAR(1000) NOT NULL,
+    nome_ncm_espanhol VARCHAR(1000) NOT NULL
+);
+
+-- Dimensão Unidade
 CREATE TABLE dim_unidade (
-    unidade_id INT AUTO_INCREMENT PRIMARY KEY,
-    CO_UNID INT NOT NULL UNIQUE,
-    descricao_unidade VARCHAR(50)
+    id_unidade INT PRIMARY KEY,
+    nome_unidade VARCHAR(300) NOT NULL,
+    sigla_unidade VARCHAR(20) NOT NULL
+);
+
+-- Dimensão Bloco
+CREATE TABLE dim_bloco (
+    id_bloco INT PRIMARY KEY,
+    nome_bloco_portugues VARCHAR(800) NOT NULL,
+    nome_bloco_ingles VARCHAR(800) NOT NULL,
+    nome_bloco_espanhol VARCHAR(800) NOT NULL
+);
+
+-- Dimensão Tempo
+CREATE TABLE dim_tempo (
+    id_dim_tempo INT PRIMARY KEY,
+    ano INT NOT NULL,
+    mes INT NOT NULL
 );
 
 -- =====================================================
 -- TABELA FATO (Fact Table) - Star Schema Central
 -- =====================================================
 
--- Fato Exportação (Exportation Fact Table)
+-- Fato Exportação
 CREATE TABLE fato_exportacao (
-    exportacao_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    tempo_id INT NOT NULL,
-    produto_id INT NOT NULL,
-    pais_id INT NOT NULL,
-    localidade_id INT NOT NULL,
-    via_id INT NOT NULL,
-    unidade_id INT NOT NULL,
-    
-    -- Métricas (Measures)
-    QT_ESTAT DECIMAL(15,3),
-    KG_LIQUIDO DECIMAL(15,3),
-    VL_FOB DECIMAL(15,2),
+    id_fato_exportacao INT PRIMARY KEY,
+    id_dim_tempo INT NOT NULL,
+    id_ncm INT NOT NULL,
+    id_unidade INT NOT NULL,
+    id_pais INT NOT NULL,
+    id_urf INT NOT NULL,
+    id_estado INT NOT NULL,
+    id_via INT NOT NULL,
+    ano_int INT NOT NULL,
+    mes_int INT NOT NULL,
+    sg_uf CHAR(2) NOT NULL,
+    nome_ncm_portugues VARCHAR(1000) NOT NULL,
+    nome_ncm_ingles VARCHAR(1000) NOT NULL,
+    nome_ncm_espanhol VARCHAR(1000) NOT NULL,
+    qt_estat FLOAT NOT NULL,
+    kg_liquido FLOAT NOT NULL,
+    vl_fob FLOAT NOT NULL,
     
     -- Chaves Estrangeiras
-    FOREIGN KEY (tempo_id) REFERENCES dim_tempo(tempo_id),
-    FOREIGN KEY (produto_id) REFERENCES dim_produto(produto_id),
-    FOREIGN KEY (pais_id) REFERENCES dim_pais(pais_id),
-    FOREIGN KEY (localidade_id) REFERENCES dim_localidade(localidade_id),
-    FOREIGN KEY (via_id) REFERENCES dim_via(via_id),
-    FOREIGN KEY (unidade_id) REFERENCES dim_unidade(unidade_id),
+    FOREIGN KEY (id_dim_tempo) REFERENCES dim_tempo(id_dim_tempo),
+    FOREIGN KEY (id_ncm) REFERENCES dim_ncm(id_ncm),
+    FOREIGN KEY (id_unidade) REFERENCES dim_unidade(id_unidade),
+    FOREIGN KEY (id_pais) REFERENCES dim_pais(id_pais),
+    FOREIGN KEY (id_urf) REFERENCES dim_urf(id_urf),
+    FOREIGN KEY (id_estado) REFERENCES dim_estado(id_estado),
+    FOREIGN KEY (id_via) REFERENCES dim_via(id_via),
     
     -- Índices para Performance
-    INDEX idx_tempo (tempo_id),
-    INDEX idx_produto (produto_id),
-    INDEX idx_pais (pais_id),
-    INDEX idx_localidade (localidade_id),
-    INDEX idx_vl_fob (VL_FOB),
-    INDEX idx_kg_liquido (KG_LIQUIDO)
+    INDEX idx_dim_tempo (id_dim_tempo),
+    INDEX idx_ncm (id_ncm),
+    INDEX idx_pais (id_pais),
+    INDEX idx_urf (id_urf),
+    INDEX idx_estado (id_estado),
+    INDEX idx_via (id_via),
+    INDEX idx_vl_fob (vl_fob),
+    INDEX idx_kg_liquido (kg_liquido)
 );
 
 -- =====================================================
@@ -223,99 +230,100 @@ CREATE TABLE fato_exportacao (
 -- =====================================================
 
 -- População da Dimensão Tempo
-INSERT INTO dim_tempo (CO_ANO, CO_MES, nome_mes, trimestre, semestre, nome_trimestre, ano_mes) VALUES
+INSERT INTO dim_tempo (id_dim_tempo, ano, mes) VALUES
 """
 
     # Obter dados únicos de tempo
     tempo_unique = df[['CO_ANO', 'CO_MES']].drop_duplicates().sort_values(['CO_ANO', 'CO_MES'])
     
-    meses_nome = {
-        1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho',
-        7: 'Julho', 8: 'Agosto', 9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
-    }
-    
     valores_tempo = []
-    for _, row in tempo_unique.iterrows():
+    for idx, (_, row) in enumerate(tempo_unique.iterrows()):
         ano = row['CO_ANO']
         mes = row['CO_MES']
-        trimestre = (mes - 1) // 3 + 1
-        semestre = 1 if mes <= 6 else 2
-        nome_mes = meses_nome.get(mes, f'Mês {mes}')
-        nome_trimestre = f'T{trimestre}'
-        ano_mes = f'{ano}-{mes:02d}'
-        
-        valores_tempo.append(f"({ano}, {mes}, '{nome_mes}', {trimestre}, {semestre}, '{nome_trimestre}', '{ano_mes}')")
+        valores_tempo.append(f"({idx + 1}, {ano}, {mes})")
     
     sql_content += ",\n".join(valores_tempo) + ";\n\n"
     
-    # População da Dimensão Produto
-    sql_content += "-- População da Dimensão Produto\nINSERT INTO dim_produto (CO_NCM, id_product, descricao_produto, categoria_produto) VALUES\n"
+    # População da Dimensão NCM
+    sql_content += "-- População da Dimensão NCM\nINSERT INTO dim_ncm (id_ncm, nome_ncm_portugues, nome_ncm_ingles, nome_ncm_espanhol) VALUES\n"
     
-    produto_unique = df[['CO_NCM', 'id_product']].drop_duplicates()
-    valores_produto = []
+    ncm_unique = df[['CO_NCM']].drop_duplicates()
+    valores_ncm = []
     
-    for _, row in produto_unique.iterrows():
+    for idx, (_, row) in enumerate(ncm_unique.iterrows()):
         co_ncm = row['CO_NCM']
-        id_product = row['id_product'].replace("'", "''") if pd.notna(row['id_product']) else 'NULL'
-        categoria = row['id_product'].split('_')[0] if '_' in str(row['id_product']) else 'OUTROS'
-        
-        valores_produto.append(f"({co_ncm}, '{id_product}', '{id_product}', '{categoria}')")
+        valores_ncm.append(f"({idx + 1}, 'Produto NCM {co_ncm}', 'Product NCM {co_ncm}', 'Producto NCM {co_ncm}')")
     
-    sql_content += ",\n".join(valores_produto[:50]) + ";\n\n"  # Limitar para não ficar muito grande
-    
-    # População da Dimensão País
-    sql_content += "-- População da Dimensão País\nINSERT INTO dim_pais (CO_PAIS, id_country, nome_pais, CO_BLOCO, nome_bloco) VALUES\n"
-    
-    pais_unique = df[['CO_PAIS', 'id_country']].drop_duplicates()
-    valores_pais = []
-    
-    for _, row in pais_unique.iterrows():
-        co_pais = row['CO_PAIS']
-        id_country = row['id_country'].replace("'", "''") if pd.notna(row['id_country']) else 'NULL'
-        
-        valores_pais.append(f"({co_pais}, '{id_country}', '{id_country}', NULL, NULL)")
-    
-    sql_content += ",\n".join(valores_pais[:20]) + ";\n\n"
-    
-    # População da Dimensão Localidade
-    sql_content += "-- População da Dimensão Localidade\nINSERT INTO dim_localidade (SG_UF_NCM, nm_estado, CO_URF, id_urf) VALUES\n"
-    
-    localidade_unique = df[['SG_UF_NCM', 'nm_estado', 'CO_URF', 'id_urf']].drop_duplicates()
-    valores_localidade = []
-    
-    for _, row in localidade_unique.iterrows():
-        sg_uf = row['SG_UF_NCM']
-        nm_estado = row['nm_estado'].replace("'", "''") if pd.notna(row['nm_estado']) else 'NULL'
-        co_urf = row['CO_URF']
-        id_urf = row['id_urf'].replace("'", "''") if pd.notna(row['id_urf']) else 'NULL'
-        
-        valores_localidade.append(f"('{sg_uf}', '{nm_estado}', {co_urf}, '{id_urf}')")
-    
-    sql_content += ",\n".join(valores_localidade[:20]) + ";\n\n"
-    
-    # População da Dimensão Via
-    sql_content += "-- População da Dimensão Via\nINSERT INTO dim_via (CO_VIA, id_via, descricao_via) VALUES\n"
-    
-    via_unique = df[['CO_VIA']].drop_duplicates()
-    valores_via = []
-    
-    for _, row in via_unique.iterrows():
-        co_via = row['CO_VIA']
-        valores_via.append(f"({co_via}, 'VIA_{co_via}', 'Via Transporte {co_via}')")
-    
-    sql_content += ",\n".join(valores_via) + ";\n\n"
+    sql_content += ",\n".join(valores_ncm[:50]) + ";\n\n"
     
     # População da Dimensão Unidade
-    sql_content += "-- População da Dimensão Unidade\nINSERT INTO dim_unidade (CO_UNID, descricao_unidade) VALUES\n"
+    sql_content += "-- População da Dimensão Unidade\nINSERT INTO dim_unidade (id_unidade, nome_unidade, sigla_unidade) VALUES\n"
     
     unidade_unique = df[['CO_UNID']].drop_duplicates()
     valores_unidade = []
     
-    for _, row in unidade_unique.iterrows():
+    for idx, (_, row) in enumerate(unidade_unique.iterrows()):
         co_unid = row['CO_UNID']
-        valores_unidade.append(f"({co_unid}, 'Unidade {co_unid}')")
+        valores_unidade.append(f"({idx + 1}, 'Unidade {co_unid}', 'U{co_unid}')")
     
     sql_content += ",\n".join(valores_unidade) + ";\n\n"
+    
+    # População da Dimensão País
+    sql_content += "-- População da Dimensão País\nINSERT INTO dim_pais (id_pais, nome_pais_portugues, nome_pais_ingles, nome_pais_espanhol) VALUES\n"
+    
+    pais_unique = df[['CO_PAIS']].drop_duplicates()
+    valores_pais = []
+    
+    for idx, (_, row) in enumerate(pais_unique.iterrows()):
+        co_pais = row['CO_PAIS']
+        valores_pais.append(f"({idx + 1}, 'País {co_pais}', 'Country {co_pais}', 'País {co_pais}')")
+    
+    sql_content += ",\n".join(valores_pais[:20]) + ";\n\n"
+    
+    # População da Dimensão URF
+    sql_content += "-- População da Dimensão URF\nINSERT INTO dim_urf (id_urf, nome_urf) VALUES\n"
+    
+    urf_unique = df[['CO_URF']].drop_duplicates()
+    valores_urf = []
+    
+    for idx, (_, row) in enumerate(urf_unique.iterrows()):
+        co_urf = row['CO_URF']
+        valores_urf.append(f"({idx + 1}, 'URF {co_urf}')")
+    
+    sql_content += ",\n".join(valores_urf[:20]) + ";\n\n"
+    
+    # População da Dimensão Estado
+    sql_content += "-- População da Dimensão Estado\nINSERT INTO dim_estado (id_estado, nome_estado, sg_uf, nome_regiao) VALUES\n"
+    
+    estado_unique = df[['SG_UF_NCM', 'nm_estado']].drop_duplicates()
+    valores_estado = []
+    
+    for idx, (_, row) in enumerate(estado_unique.iterrows()):
+        sg_uf = row['SG_UF_NCM']
+        nm_estado = row['nm_estado'].replace("'", "''") if pd.notna(row['nm_estado']) else f'Estado {sg_uf}'
+        valores_estado.append(f"({idx + 1}, '{nm_estado}', '{sg_uf}', 'Região')")
+    
+    sql_content += ",\n".join(valores_estado) + ";\n\n"
+    
+    # População da Dimensão Via
+    sql_content += "-- População da Dimensão Via\nINSERT INTO dim_via (id_via, nome_via) VALUES\n"
+    
+    via_unique = df[['CO_VIA']].drop_duplicates()
+    valores_via = []
+    
+    for idx, (_, row) in enumerate(via_unique.iterrows()):
+        co_via = row['CO_VIA']
+        valores_via.append(f"({idx + 1}, 'Via {co_via}')")
+    
+    sql_content += ",\n".join(valores_via) + ";\n\n"
+    
+    # População da Dimensão Bloco
+    sql_content += "-- População da Dimensão Bloco\nINSERT INTO dim_bloco (id_bloco, nome_bloco_portugues, nome_bloco_ingles, nome_bloco_espanhol) VALUES\n"
+    sql_content += "(1, 'Bloco 1', 'Block 1', 'Bloque 1');\n\n"
+    
+    # População da Dimensão Município
+    sql_content += "-- População da Dimensão Município\nINSERT INTO dim_municipio (id_municipio, nome_municipio, id_estado) VALUES\n"
+    sql_content += "(1, 'Município 1', 1);\n\n"
     
     # =====================================================
     # VIEWS PARA POWER BI
@@ -323,81 +331,84 @@ INSERT INTO dim_tempo (CO_ANO, CO_MES, nome_mes, trimestre, semestre, nome_trime
     
     sql_content += """-- =====================================================
 -- VIEWS OTIMIZADAS PARA POWER BI DESKTOP
+-- Baseado no modelo dimensional do WIP.drawio.xml
 -- =====================================================
 
 -- View Consolidada de Exportações (Principal para Power BI)
 CREATE VIEW v_exportacoes_consolidadas AS
 SELECT 
-    f.exportacao_id,
-    t.CO_ANO,
-    t.CO_MES,
-    t.nome_mes,
-    t.trimestre,
-    t.semestre,
-    p.CO_NCM,
-    p.id_product,
-    p.categoria_produto,
-    pa.CO_PAIS,
-    pa.nome_pais,
-    l.SG_UF_NCM,
-    l.nm_estado,
-    l.nm_urf,
-    v.descricao_via,
-    f.QT_ESTAT,
-    f.KG_LIQUIDO,
-    f.VL_FOB
+    f.id_fato_exportacao,
+    t.ano,
+    t.mes,
+    nc.nome_ncm_portugues,
+    nc.nome_ncm_ingles,
+    nc.nome_ncm_espanhol,
+    u.nome_unidade,
+    u.sigla_unidade,
+    p.nome_pais_portugues,
+    p.nome_pais_ingles,
+    p.nome_pais_espanhol,
+    ur.nome_urf,
+    e.nome_estado,
+    e.sg_uf,
+    e.nome_regiao,
+    v.nome_via,
+    f.qt_estat,
+    f.kg_liquido,
+    f.vl_fob
 FROM fato_exportacao f
-JOIN dim_tempo t ON f.tempo_id = t.tempo_id
-JOIN dim_produto p ON f.produto_id = p.produto_id
-JOIN dim_pais pa ON f.pais_id = pa.pais_id
-JOIN dim_localidade l ON f.localidade_id = l.localidade_id
-JOIN dim_via v ON f.via_id = v.via_id;
+JOIN dim_tempo t ON f.id_dim_tempo = t.id_dim_tempo
+JOIN dim_ncm nc ON f.id_ncm = nc.id_ncm
+JOIN dim_unidade u ON f.id_unidade = u.id_unidade
+JOIN dim_pais p ON f.id_pais = p.id_pais
+JOIN dim_urf ur ON f.id_urf = ur.id_urf
+JOIN dim_estado e ON f.id_estado = e.id_estado
+JOIN dim_via v ON f.id_via = v.id_via;
 
--- View Análise por Produto
-CREATE VIEW v_analise_produto AS
+-- View Análise por NCM
+CREATE VIEW v_analise_ncm AS
 SELECT 
-    p.categoria_produto,
-    p.id_product,
-    t.CO_ANO,
-    t.nome_mes,
-    SUM(f.VL_FOB) as valor_fob_total,
-    SUM(f.KG_LIQUIDO) as peso_total,
+    nc.nome_ncm_portugues,
+    t.ano,
+    t.mes,
+    SUM(f.vl_fob) as valor_fob_total,
+    SUM(f.kg_liquido) as peso_total,
     COUNT(*) as numero_transacoes
 FROM fato_exportacao f
-JOIN dim_produto p ON f.produto_id = p.produto_id
-JOIN dim_tempo t ON f.tempo_id = t.tempo_id
-GROUP BY p.categoria_produto, p.id_product, t.CO_ANO, t.nome_mes
+JOIN dim_ncm nc ON f.id_ncm = nc.id_ncm
+JOIN dim_tempo t ON f.id_dim_tempo = t.id_dim_tempo
+GROUP BY nc.nome_ncm_portugues, t.ano, t.mes
 ORDER BY valor_fob_total DESC;
 
 -- View Análise por País
 CREATE VIEW v_analise_pais AS
 SELECT 
-    pa.nome_pais,
-    t.CO_ANO,
-    t.trimestre,
-    SUM(f.VL_FOB) as valor_fob_total,
-    SUM(f.KG_LIQUIDO) as peso_total,
-    COUNT(DISTINCT p.id_product) as produtos_distintos
+    p.nome_pais_portugues,
+    t.ano,
+    SUM(f.vl_fob) as valor_fob_total,
+    SUM(f.kg_liquido) as peso_total,
+    COUNT(DISTINCT nc.id_ncm) as produtos_distintos
 FROM fato_exportacao f
-JOIN dim_pais pa ON f.pais_id = pa.pais_id
-JOIN dim_produto p ON f.produto_id = p.produto_id
-JOIN dim_tempo t ON f.tempo_id = t.tempo_id
-GROUP BY pa.nome_pais, t.CO_ANO, t.trimestre
+JOIN dim_pais p ON f.id_pais = p.id_pais
+JOIN dim_ncm nc ON f.id_ncm = nc.id_ncm
+JOIN dim_tempo t ON f.id_dim_tempo = t.id_dim_tempo
+GROUP BY p.nome_pais_portugues, t.ano
 ORDER BY valor_fob_total DESC;
 
 -- View Análise por Estado
 CREATE VIEW v_analise_estado AS
 SELECT 
-    l.nm_estado,
-    t.CO_ANO,
-    t.nome_mes,
-    SUM(f.VL_FOB) as valor_fob_total,
-    SUM(f.KG_LIQUIDO) as peso_total,
+    e.nome_estado,
+    e.sg_uf,
+    t.ano,
+    t.mes,
+    SUM(f.vl_fob) as valor_fob_total,
+    SUM(f.kg_liquido) as peso_total,
     COUNT(*) as numero_transacoes
 FROM fato_exportacao f
-JOIN dim_localidade l ON f.localidade_id = l.localidade_id
-JOIN dim_tempo t ON f.tempo_id = t.tempo_id
-GROUP BY l.nm_estado, t.CO_ANO, t.nome_mes
+JOIN dim_estado e ON f.id_estado = e.id_estado
+JOIN dim_tempo t ON f.id_dim_tempo = t.id_dim_tempo
+GROUP BY e.nome_estado, e.sg_uf, t.ano, t.mes
 ORDER BY valor_fob_total DESC;
 
 -- =====================================================
@@ -405,26 +416,32 @@ ORDER BY valor_fob_total DESC;
 -- =====================================================
 
 -- Índices compostos para consultas frequentes
-CREATE INDEX idx_foto_completo ON fato_exportacao(tempo_id, produto_id, pais_id);
-CREATE INDEX idx_tempo_produto ON fato_exportacao(tempo_id, produto_id);
-CREATE INDEX idx_pais_tempo ON fato_exportacao(pais_id, tempo_id);
+CREATE INDEX idx_fato_completo ON fato_exportacao(id_dim_tempo, id_ncm, id_pais);
+CREATE INDEX idx_tempo_ncm ON fato_exportacao(id_dim_tempo, id_ncm);
+CREATE INDEX idx_pais_tempo ON fato_exportacao(id_pais, id_dim_tempo);
 
 -- =====================================================
 -- ESTATÍSTICAS DO BANCO DE DADOS
 -- =====================================================
 
--- Contagem de registros por tabela
+-- Contagem de registros por tabela (baseado no WIP.drawio.xml)
 SELECT 'dim_tempo' as tabela, COUNT(*) as total_registros FROM dim_tempo
 UNION ALL
-SELECT 'dim_produto', COUNT(*) FROM dim_produto
+SELECT 'dim_ncm', COUNT(*) FROM dim_ncm
+UNION ALL
+SELECT 'dim_unidade', COUNT(*) FROM dim_unidade
 UNION ALL
 SELECT 'dim_pais', COUNT(*) FROM dim_pais
 UNION ALL
-SELECT 'dim_localidade', COUNT(*) FROM dim_localidade
+SELECT 'dim_urf', COUNT(*) FROM dim_urf
+UNION ALL
+SELECT 'dim_estado', COUNT(*) FROM dim_estado
+UNION ALL
+SELECT 'dim_municipio', COUNT(*) FROM dim_municipio
 UNION ALL
 SELECT 'dim_via', COUNT(*) FROM dim_via
 UNION ALL
-SELECT 'dim_unidade', COUNT(*) FROM dim_unidade
+SELECT 'dim_bloco', COUNT(*) FROM dim_bloco
 UNION ALL
 SELECT 'fato_exportacao', COUNT(*) FROM fato_exportacao;
 
@@ -445,20 +462,22 @@ PARA CONECTAR NO POWER BI DESKTOP:
 
 4. Selecionar as seguintes tabelas/views:
    - v_exportacoes_consolidadas (principal)
-   - v_analise_produto
+   - v_analise_ncm
    - v_analise_pais
    - v_analise_estado
 
 5. Criar relacionamentos no Power BI:
-   - dim_tempo ↔ fato_exportacao (tempo_id)
-   - dim_produto ↔ fato_exportacao (produto_id)
-   - dim_pais ↔ fato_exportacao (pais_id)
-   - dim_localidade ↔ fato_exportacao (localidade_id)
-   - dim_via ↔ fato_exportacao (via_id)
+   - dim_tempo ↔ fato_exportacao (id_dim_tempo)
+   - dim_ncm ↔ fato_exportacao (id_ncm)
+   - dim_unidade ↔ fato_exportacao (id_unidade)
+   - dim_pais ↔ fato_exportacao (id_pais)
+   - dim_urf ↔ fato_exportacao (id_urf)
+   - dim_estado ↔ fato_exportacao (id_estado)
+   - dim_via ↔ fato_exportacao (id_via)
 
 6. Criar visualizações:
    - Mapa por países
-   - Gráfico de barras por produtos
+   - Gráfico de barras por NCMs
    - Linha temporal por meses/anos
    - Tabela dinâmica por estados
 
@@ -466,7 +485,7 @@ TECNOLOGIAS IMPLEMENTADAS:
  Base de dados: COMEX Stat
  Banco de dados: MySQL
  Ferramenta visualização: Power BI Desktop
- Modelo dimensional: Star Schema
+ Modelo dimensional: Star Schema (baseado no WIP.drawio.xml)
  Formato entrada: arquivos CSV
 */
 
@@ -483,7 +502,7 @@ TECNOLOGIAS IMPLEMENTADAS:
     return True
 
 def gerar_html_modelo_conceitual(df: pd.DataFrame, output_path: str = "output/modelo_conceitual.html"):
-    """Gera um HTML com diagrama Mermaid mostrando o modelo conceitual completo do banco."""
+    """Gera um HTML com duas abas mostrando o modelo lógico e dimensional do banco baseado no Para-apresentacao.drawio.xml."""
     
     # Contagem de registros para cada entidade
     total_exportacoes = len(df)
@@ -493,13 +512,13 @@ def gerar_html_modelo_conceitual(df: pd.DataFrame, output_path: str = "output/mo
     total_produtos = df['CO_NCM'].nunique() if 'CO_NCM' in df.columns else 0
     total_vias = df['CO_VIA'].nunique() if 'CO_VIA' in df.columns else 0
     
-    # Template HTML com todas as tabelas obrigatórias
+    # Template HTML com duas abas: modelo lógico e dimensional baseado no Para-apresentacao.drawio.xml
     html_template = f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modelo Conceitual Completo - COMEX Stat Database</title>
+    <title>Modelos de Dados - COMEX Stat Database (Baseado no Para-apresentacao.drawio.xml)</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <style>
         body {{
@@ -519,6 +538,35 @@ def gerar_html_modelo_conceitual(df: pd.DataFrame, output_path: str = "output/mo
             color: #2c3e50;
             text-align: center;
             margin-bottom: 30px;
+        }}
+        .tabs {{
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }}
+        .tab {{
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s;
+        }}
+        .tab:hover {{
+            background-color: #f5f5f5;
+        }}
+        .tab.active {{
+            color: #2c3e50;
+            border-bottom: 3px solid #2c3e50;
+            font-weight: bold;
+        }}
+        .tab-content {{
+            display: none;
+            padding: 20px;
+        }}
+        .tab-content.active {{
+            display: block;
         }}
         .stats {{
             display: flex;
@@ -556,18 +604,6 @@ def gerar_html_modelo_conceitual(df: pd.DataFrame, output_path: str = "output/mo
             padding: 15px;
             margin: 20px 0;
         }}
-        .warning {{
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin: 20px 0;
-        }}
-        .success {{
-            background-color: #d4edda;
-            border-left: 4px solid #28a745;
-            padding: 15px;
-            margin: 20px 0;
-        }}
         .timestamp {{
             text-align: center;
             color: #7f8c8d;
@@ -595,7 +631,15 @@ def gerar_html_modelo_conceitual(df: pd.DataFrame, output_path: str = "output/mo
 </head>
 <body>
     <div class="container">
-        <h1> Modelo Conceitual Completo - Banco de Dados COMEX Stat</h1>
+        <h1> Modelos de Dados - COMEX Stat (Baseado no Para-apresentacao.drawio.xml)</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('logico')">Modelo Lógico</button>
+            <button class="tab" onclick="showTab('dimensional')">Modelo Dimensional</button>
+        </div>
+        
+        <!-- Tab Modelo Lógico -->
+        <div id="tab-logico" class="tab-content active">
                 
         <div class="stats">
             <div class="stat-card">
@@ -624,121 +668,215 @@ def gerar_html_modelo_conceitual(df: pd.DataFrame, output_path: str = "output/mo
             </div>
         </div>
         
-        <div class="table-grid">
-            <div class="table-card">
-                <div class="table-title"> Tabelas Obrigatórias Implementadas:</div>
-                <ul>
-                    <li> Importação</li>
-                    <li> Exportação</li>
-                    <li> NCM</li>
-                    <li> Países</li>
-                    <li> Blocos</li>
-                    <li> Municípios</li>
-                    <li> Estados</li>
-                    <li> Via</li>
-                    <li> URF</li>
-                </ul>
+            <h2>Modelo Lógico de Dados</h2>
+            <div class="info">
+                Este diagrama mostra o modelo lógico relacional conforme definido no Para-apresentacao.drawio.xml (página: modelo_logico).
             </div>
-            <div class="table-card">
-                <div class="table-title"> Relacionamentos Principais:</div>
-                <ul>
-                    <li>Exportação → Estados (UF)</li>
-                    <li>Exportação → Países</li>
-                    <li>Exportação → URF</li>
-                    <li>Exportação → NCM</li>
-                    <li>Exportação → Via</li>
-                    <li>Países → Blocos</li>
-                </ul>
+            
+            <div class="table-grid">
+                <div class="table-card">
+                    <div class="table-title"> Tabelas do Modelo Lógico:</div>
+                    <ul>
+                        <li> tb_via</li>
+                        <li> tb_urf</li>
+                        <li> tb_estado</li>
+                        <li> tb_municipio</li>
+                        <li> tb_ncm</li>
+                        <li> tb_unidade</li>
+                        <li> tb_exportacao</li>
+                    </ul>
+                </div>
+                <div class="table-card">
+                    <div class="table-title"> Relacionamentos (1:N):</div>
+                    <ul>
+                        <li>tb_exportacao → tb_estado</li>
+                        <li>tb_exportacao → tb_ncm</li>
+                        <li>tb_exportacao → tb_unidade</li>
+                        <li>tb_exportacao → tb_via</li>
+                        <li>tb_exportacao → tb_urf</li>
+                        <li>tb_municipio → tb_estado</li>
+                    </ul>
+                </div>
             </div>
-        </div>
         
         <div class="mermaid">
 erDiagram
-    IMPORTACAO {{
-        int CO_ANO PK
-        int CO_MES PK
-        int CO_NCM PK
-        int CO_PAIS PK
-        int CO_URF PK
-        int CO_UNID
-        int CO_VIA
-        decimal QT_ESTAT
-        decimal KG_LIQUIDO
-        decimal VL_FOB
+    TB_VIA {{
+        int id_via PK
+        varchar nome_via
     }}
     
-    EXPORTACAO {{
-        int CO_ANO PK
-        int CO_MES PK
-        int CO_NCM PK
-        int CO_PAIS PK
-        int CO_URF PK
-        int CO_UNID
-        int CO_VIA
-        decimal QT_ESTAT
-        decimal KG_LIQUIDO
-        decimal VL_FOB
+    TB_URF {{
+        int id_urf PK
+        varchar nome_urf
     }}
     
-    NCM {{
-        int CO_NCM PK
-        string id_product
-        string descricao
+    TB_ESTADO {{
+        int id_estado PK
+        varchar nome_estado
+        varchar sigla_estado
+        varchar nome_regiao
     }}
     
-    PAISES {{
-        int CO_PAIS PK
-        string id_country
-        string nome_pais
-        int CO_BLOCO FK
+    TB_MUNICIPIO {{
+        int id_municipio PK
+        varchar nome_municipio
+        int id_estado FK
     }}
     
-    BLOCOS {{
-        int CO_BLOCO PK
-        string id_bloco
-        string nome_bloco
+    TB_NCM {{
+        int id_ncm PK
+        varchar nome_ncm_portugues
+        varchar nome_ncm_ingles
+        varchar nome_ncm_espanhol
     }}
     
-    MUNICIPIOS {{
-        int CO_MUNICIPIO PK
-        string id_municipio
-        string nome_municipio
-        string SG_UF_NCM FK
+    TB_UNIDADE {{
+        int id_unidade PK
+        varchar nome_unidade
+        varchar sigla_unidade
     }}
     
-    ESTADOS {{
-        string SG_UF_NCM PK
-        string nm_estado
+    TB_EXPORTACAO {{
+        int id_exportacao PK
+        int id_ncm FK
+        int ano
+        int mes
+        int id_estado FK
+        int id_unidade FK
+        int id_via FK
+        int id_urf FK
+        varchar co_pais
+        decimal qt_estat
+        decimal kg_liquido
+        decimal vl_fob
     }}
     
-    VIA {{
-        int CO_VIA PK
-        string id_via
-        string descricao_via
+    TB_EXPORTACAO ||--|{{ TB_ESTADO : "N:1"
+    TB_EXPORTACAO ||--|{{ TB_NCM : "N:1"
+    TB_EXPORTACAO ||--|{{ TB_UNIDADE : "N:1"
+    TB_EXPORTACAO ||--|{{ TB_VIA : "N:1"
+    TB_EXPORTACAO ||--|{{ TB_URF : "N:1"
+    TB_MUNICIPIO ||--|{{ TB_ESTADO : "N:1"
+        </div>
+        
+        <!-- Tab Modelo Dimensional -->
+        <div id="tab-dimensional" class="tab-content">
+            <h2>Modelo Dimensional de Dados (Star Schema)</h2>
+            <div class="info">
+                Este diagrama mostra o modelo dimensional Star Schema conforme definido no Para-apresentacao.drawio.xml (página: modelo_dimensional).
+            </div>
+            
+            <div class="table-grid">
+                <div class="table-card">
+                    <div class="table-title"> Tabelas de Dimensão:</div>
+                    <ul>
+                        <li> dim_urf</li>
+                        <li> dim_via</li>
+                        <li> dim_pais</li>
+                        <li> dim_estado</li>
+                        <li> dim_municipio</li>
+                        <li> dim_ncm</li>
+                        <li> dim_unidade</li>
+                        <li> dim_bloco</li>
+                        <li> dim_tempo</li>
+                    </ul>
+                </div>
+                <div class="table-card">
+                    <div class="table-title"> Tabela Fato:</div>
+                    <ul>
+                        <li> fato_exportacao</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mermaid">
+erDiagram
+    DIM_URF {{
+        int id_urf PK
+        varchar nome_urf
     }}
     
-    URF {{
-        int CO_URF PK
-        string id_urf
-        string nm_urf
-        string CO_MUNICIPIO FK
+    DIM_VIA {{
+        int id_via PK
+        varchar nome_via
     }}
     
-    IMPORTACAO ||--o| PAISES : "N:1"
-    IMPORTACAO ||--o| ESTADOS : "N:1"
-    IMPORTACAO ||--o| URF : "N:1"
-    IMPORTACAO ||--o| NCM : "N:1"
-    IMPORTACAO ||--o| VIA : "N:1"
+    DIM_PAIS {{
+        int id_pais PK
+        varchar nome_pais_portugues
+        varchar nome_pais_ingles
+        varchar nome_pais_espanhol
+    }}
     
-    EXPORTACAO ||--o| PAISES : "N:1"
-    EXPORTACAO ||--o| ESTADOS : "N:1"
-    EXPORTACAO ||--o| URF : "N:1"
-    EXPORTACAO ||--o| NCM : "N:1"
-    EXPORTACAO ||--o| VIA : "N:1"
+    DIM_ESTADO {{
+        int id_estado PK
+        varchar nome_estado
+        varchar sg_uf
+        varchar nome_regiao
+    }}
     
-    PAISES ||--o| BLOCOS : "N:1"
-    MUNICIPIOS ||--o| ESTADOS : "N:1"
-    URF ||--o| MUNICIPIOS : "N:1"
+    DIM_MUNICIPIO {{
+        int id_municipio PK
+        varchar nome_municipio
+        int id_estado FK
+    }}
+    
+    DIM_NCM {{
+        int id_ncm PK
+        varchar nome_ncm_portugues
+        varchar nome_ncm_ingles
+        varchar nome_ncm_espanhol
+    }}
+    
+    DIM_UNIDADE {{
+        int id_unidade PK
+        varchar nome_unidade
+        varchar sigla_unidade
+    }}
+    
+    DIM_BLOCO {{
+        int id_bloco PK
+        varchar nome_bloco_portugues
+        varchar nome_bloco_ingles
+        varchar nome_bloco_espanhol
+    }}
+    
+    DIM_TEMPO {{
+        int id_dim_tempo PK
+        int ano
+        int mes
+    }}
+    
+    FATO_EXPORTACAO {{
+        int id_fato_exportacao PK
+        int id_dim_tempo FK
+        int id_ncm FK
+        int id_unidade FK
+        int id_pais FK
+        int id_urf FK
+        int id_estado FK
+        int id_via FK
+        int ano_int
+        int mes_int
+        varchar sg_uf
+        varchar nome_ncm_portugues
+        varchar nome_ncm_ingles
+        varchar nome_ncm_espanhol
+        float qt_estat
+        float kg_liquido
+        float vl_fob
+    }}
+    
+    FATO_EXPORTACAO }}|--|{{ DIM_TEMPO : "N:1"
+    FATO_EXPORTACAO }}|--|{{ DIM_NCM : "N:1"
+    FATO_EXPORTACAO }}|--|{{ DIM_UNIDADE : "N:1"
+    FATO_EXPORTACAO }}|--|{{ DIM_PAIS : "N:1"
+    FATO_EXPORTACAO }}|--|{{ DIM_URF : "N:1"
+    FATO_EXPORTACAO }}|--|{{ DIM_ESTADO : "N:1"
+    FATO_EXPORTACAO }}|--|{{ DIM_VIA : "N:1"
+    DIM_MUNICIPIO }}|--|{{ DIM_ESTADO : "N:1"
+        </div>
         </div>
         
         <div class="timestamp">
@@ -747,7 +885,32 @@ erDiagram
     </div>
     
     <script>
-        mermaid.initialize({{startOnLoad: true}});
+        mermaid.initialize({{startOnLoad: true, theme: 'default'}});
+        
+        function showTab(tabName) {{
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {{
+                content.classList.remove('active');
+            }});
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {{
+                tab.classList.remove('active');
+            }});
+            
+            // Show selected tab content
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Re-render mermaid diagrams with delay to ensure DOM is updated
+            setTimeout(() => {{
+                mermaid.init(undefined, document.querySelectorAll('.tab-content.active .mermaid'));
+            }}, 50);
+        }}
     </script>
 </body>
 </html>"""
@@ -761,24 +924,28 @@ erDiagram
         print(f"Erro ao gerar HTML: {str(e)}")
         return False
 
-def executar_load_completo(df: pd.DataFrame, output_file: str = "output/dados_finais.csv"):
+def executar_load_completo(df: pd.DataFrame, output_file: str = None):
     """Executa a fase completa do Load com todas as tabelas obrigatórias."""
     
-    # Verifica se os dados já foram processados
-    if verificar_dados_existentes(output_file):
-        print(f" Dados já processados encontrados em {output_file}")
-        
-        # Carrega os dados existentes
-        df_existente = pd.read_csv(output_file)
-        
-        # Simula carga no banco com todas as tabelas
-        if carregar_dados_banco(df_existente):
-            # Gera o modelo conceitual HTML e o script SQL MySQL
-            gerar_html_modelo_conceitual(df_existente)
-            gerar_sql_mysql_star_schema(df_existente)
-            return True
-        else:
-            return False
+    # Se output_file for None, usa o dataframe diretamente (não cria dados_finais.csv)
+    if output_file is None:
+        print(" Usando dataframe diretamente (sem criar dados_finais.csv)")
+        df_usar = df
     else:
-        print(f" Dados não encontrados em {output_file}")
+        # Verifica se os dados já foram processados
+        if verificar_dados_existentes(output_file):
+            print(f" Dados já processados encontrados em {output_file}")
+            # Carrega os dados existentes
+            df_usar = pd.read_csv(output_file)
+        else:
+            print(f" Dados não encontrados em {output_file}")
+            return False
+    
+    # Simula carga no banco com todas as tabelas
+    if carregar_dados_banco(df_usar):
+        # Gera o modelo conceitual HTML e o script SQL MySQL
+        gerar_html_modelo_conceitual(df_usar)
+        gerar_sql_mysql_star_schema(df_usar)
+        return True
+    else:
         return False

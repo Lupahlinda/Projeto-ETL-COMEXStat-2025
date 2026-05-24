@@ -9,11 +9,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
 
 def aplicar_regressao_completa(df, produto=None):
-    """
-    Aplica regressão para todos os produtos ou um produto específico.
-    Se produto=None, processa todos os produtos disponíveis.
-    """
-    
+     
     # Se não especificar produto, processa todos
     if produto is None:
         print("Aplicando modelo de regressão para TODOS os produtos...")
@@ -113,7 +109,7 @@ def aplicar_regressao_completa(df, produto=None):
     # ============================================
     
     # === SUBPLOT 1: Estatísticas do Dataset (CARD) ===
-    ax1 = plt.subplot(2, 3, 1)
+    ax1 = plt.subplot(2, 2, 1)
     ax1.axis('off')
     ax1.set_facecolor('#f8f9fa')
     
@@ -151,7 +147,7 @@ def aplicar_regressao_completa(df, produto=None):
              edgecolor='#28a745', linewidth=2, alpha=0.95), linespacing=1.1)
     
     # === SUBPLOT 2: Top 10 Produtos ===
-    ax2 = plt.subplot(2, 3, 2)
+    ax2 = plt.subplot(2, 2, 2)
     ax2.set_facecolor('#ffffff')
     
     top_produtos.plot(kind='barh', color='#3498db', ax=ax2, edgecolor='black', linewidth=0.5)
@@ -165,7 +161,7 @@ def aplicar_regressao_completa(df, produto=None):
     ax2.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'R${x/1e6:.0f}M'))
     
     # === SUBPLOT 3: Top 10 Países ===
-    ax3 = plt.subplot(2, 3, 3)
+    ax3 = plt.subplot(2, 2, 3)
     ax3.set_facecolor('#ffffff')
     
     top_paises.plot(kind='barh', color='#e74c3c', ax=ax3, edgecolor='black', linewidth=0.5)
@@ -179,13 +175,11 @@ def aplicar_regressao_completa(df, produto=None):
     ax3.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'R${x/1e6:.0f}M'))
     
     # ============================================
-    # LINHA 2: CARD MODELO + GRÁFICOS DE MODELO
+    # LINHA 2: CARD MODELO
     # ============================================
     
-    residuos = y_test - y_pred
-    
     # === SUBPLOT 4: Estatísticas do Modelo (CARD) ===
-    ax4 = plt.subplot(2, 3, 4)
+    ax4 = plt.subplot(2, 2, 4)
     ax4.axis('off')
     ax4.set_facecolor('#f8f9fa')
     
@@ -224,38 +218,6 @@ def aplicar_regressao_completa(df, produto=None):
              verticalalignment='center', horizontalalignment='center',
              fontfamily='monospace', bbox=dict(boxstyle='round', facecolor='white', 
              edgecolor='#667eea', linewidth=2, alpha=0.95), linespacing=1.1)
-    
-    # === SUBPLOT 5: Previsões vs Valores Reais ===
-    ax5 = plt.subplot(2, 3, 5)
-    ax5.set_facecolor('#ffffff')
-    
-    # Scatter plot com gradiente de densidade
-    scatter = ax5.scatter(y_test, y_pred, c=y_pred, cmap='viridis', alpha=0.6, s=30, edgecolors='none')
-    
-    # Linha de perfeição
-    min_val = min(y_test.min(), y_pred.min())
-    max_val = max(y_test.max(), y_pred.max())
-    ax5.plot([min_val, max_val], [min_val, max_val], 'r--', linewidth=2, label='Linha Ideal (y=x)', alpha=0.8)
-    
-    ax5.set_xlabel('Valores Reais (VL_FOB)', fontsize=10, fontweight='bold')
-    ax5.set_ylabel('Previsões do Modelo', fontsize=10, fontweight='bold')
-    ax5.set_title(' Previsões vs Valores Reais', fontsize=12, fontweight='bold', pad=10)
-    ax5.legend(loc='upper left', framealpha=0.9)
-    plt.colorbar(scatter, ax=ax5, label='Valor Previsto', fraction=0.046, pad=0.04)
-    
-    # === SUBPLOT 6: Análise de Resíduos ===
-    ax6 = plt.subplot(2, 3, 6)
-    ax6.set_facecolor('#ffffff')
-    
-    ax6.scatter(y_pred, residuos, alpha=0.5, color='#3498db', s=20)
-    ax6.axhline(y=0, color='red', linestyle='--', linewidth=2, alpha=0.7)
-    ax6.fill_between([y_pred.min(), y_pred.max()], [-mae, -mae], [mae, mae], 
-                     alpha=0.2, color='green', label=f'±MAE ({mae:,.0f})')
-    
-    ax6.set_xlabel('Valores Previstos', fontsize=10, fontweight='bold')
-    ax6.set_ylabel('Resíduos (Real - Previsto)', fontsize=10, fontweight='bold')
-    ax6.set_title(' Análise de Resíduos', fontsize=12, fontweight='bold', pad=10)
-    ax6.legend(loc='upper right')
     
     plt.tight_layout(rect=[0, 0.02, 1, 0.95])
     

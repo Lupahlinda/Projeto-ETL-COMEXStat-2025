@@ -39,20 +39,15 @@ def expandir_urf(df: pd.DataFrame, dict_urf_path: str) -> pd.DataFrame:
     df_merged = pd.merge(df, dict_urf, on="CO_URF", how="left")
     return df_merged
 
-def agro_filtering(df: pd.DataFrame) -> pd.DataFrame:
-    print("Filtrando dados para análise completa.")
-    # Remove apenas registros com flag=0 (inválidos)
-    df_filtered = df[df["flag"] != 0]
-    df_filtered = df_filtered.drop(columns=["flag"])
-    print(f"Dados filtrados: {len(df_filtered)} registros de {len(df)} totais")
-    return df_filtered
-
 def expandir_dados(df: pd.DataFrame) -> pd.DataFrame:
     df = expandir_estados(df, r"dicionarios/dict_sg_uf.csv")
     df = expandir_paises(df, r"dicionarios/dict_country.csv")
     df = expandir_urf(df, r"dicionarios/dict_urf.csv")
     df = expandir_ncm(df, r"dicionarios/dict_ncm_product.csv")
-    df = agro_filtering(df)
+    # Remove a coluna flag se existir, sem filtrar registros
+    if "flag" in df.columns:
+        df = df.drop(columns=["flag"])
+    print(f"Dados processados: {len(df)} registros")
     return df
 
 
