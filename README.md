@@ -94,6 +94,7 @@ Projeto-ETL-COMEXStat-2025/
 ### Pré-requisitos
 - Python 3.8+
 - pip
+- (Linux) bash
 
 ### Instalação
 
@@ -108,6 +109,16 @@ pip install -r requirements.txt
 
 ### Execução
 
+#### Linux (Recomendado)
+```bash
+# Executar pipeline ETL completo usando o script shell
+bash executar.sh
+
+# Limpar projeto (remover outputs gerados)
+python reset_project.py
+```
+
+#### Windows / macOS / Outros
 ```bash
 # Executar pipeline ETL completo
 python main.py
@@ -115,6 +126,8 @@ python main.py
 # Limpar projeto (remover outputs gerados)
 python reset_project.py
 ```
+
+**Nota:** O script `executar.sh` ativa automaticamente o ambiente virtual `venv_linux` no Linux antes de executar o pipeline.
 
 ##  Pipeline ETL
 

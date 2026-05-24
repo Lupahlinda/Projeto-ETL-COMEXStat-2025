@@ -28,28 +28,23 @@ Dependências:
 
 ## Execução do Pipeline ETL
 
-### Opção 1: Usar Dados Locais (Padrão)
+### Linux (Recomendado)
 
-Execute o pipeline com os dados já disponíveis na pasta `input/`:
+Execute o pipeline usando o script shell que ativa automaticamente o ambiente virtual:
+
+```bash
+bash executar.sh
+```
+
+### Windows / macOS / Outros
+
+Execute o pipeline diretamente com Python:
 
 ```bash
 python main.py
 ```
 
-### Opção 2: Baixar Dados do COMEX Stat
-
-Para baixar dados atualizados diretamente do portal COMEX Stat, modifique o `main.py`:
-
-```python
-from src.extract import baixar_csv
-
-# Baixar dados do COMEX Stat
-arquivo = baixar_csv(
-    url="https://comexstat.mdic.gov.br/pt/geral",
-    filename="input/dados_comex.csv",
-    usar_dados_locais=False  # False = baixar da URL
-)
-```
+**Nota:** O pipeline usa exclusivamente dados locais do arquivo `input/Exportacoes_reduzidos.csv`. Não há opção de download automático.
 
 ---
 
@@ -173,7 +168,7 @@ Agora você pode criar dashboards usando os dados:
 
 **Solução:**
 - Verifique se o arquivo existe na pasta `input/`
-- Use a opção de download do COMEX Stat (`usar_dados_locais=False`)
+- O pipeline usa exclusivamente dados locais, certifique-se de que os arquivos de entrada estão presentes
 
 ### Erro: Conexão MySQL falhou
 

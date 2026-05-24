@@ -47,9 +47,9 @@ Lê CSV para validação de dados.
 
 ### baixar_csv(url, filename)
 
-Placeholder para download de dados. Na implementação atual, verifica dados locais.
+Verifica e retorna dados locais de exportações.
 
-**Nota:** A versão atual usa dados fixos locais em vez de download da internet.
+**Nota:** O projeto usa exclusivamente dados locais do arquivo input/Exportacoes_reduzidos.csv.
 
 ---
 
@@ -338,14 +338,11 @@ executar_load_completo(df, "output/dados_finais.csv")
 
 ## Constantes e Configurações
 
-### URLs Base (extract.py)
+### Caminhos de Arquivos (extract.py)
 
 ```python
-URL_BASE = "https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_2025.csv"
-URL_VALIDACAO = "https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_TOTAIS_CONFERENCIA.csv"
+input/Exportacoes_reduzidos.csv  # Dados de exportação locais
 ```
-
-**Nota:** As URLs são placeholders. O projeto usa dados locais fixos.
 
 ### Caminhos de Dicionários (map.py)
 
