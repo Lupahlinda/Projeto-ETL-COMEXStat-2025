@@ -33,7 +33,7 @@ Lê um arquivo CSV e retorna um DataFrame pandas.
 ```python
 from src.extract import ler_dados_csv
 
-df = ler_dados_csv("input/Exportacoes_reduzidos.csv", delimiter=";")
+df = ler_dados_csv("data/data/input/Exportacoes_reduzidos.csv", delimiter=";")
 print(f"Carregados {len(df)} registros")
 ```
 
@@ -49,7 +49,7 @@ Lê CSV para validação de dados.
 
 Verifica e retorna dados locais de exportações.
 
-**Nota:** O projeto usa exclusivamente dados locais do arquivo input/Exportacoes_reduzidos.csv.
+**Nota:** O projeto usa exclusivamente dados locais do arquivo data/input/Exportacoes_reduzidos.csv.
 
 ---
 
@@ -225,7 +225,7 @@ Executa a fase completa de load.
 | Parâmetro | Tipo | Padrão | Descrição |
 |-----------|------|--------|-----------|
 | df | pd.DataFrame | - | Dataset processado |
-| output_file | str | "output/dados_finais.csv" | Caminho de saída |
+| output_file | str | "data/output/dados_finais.csv" | Caminho de saída |
 
 **Ações realizadas:**
 1. Verifica se dados já existem
@@ -237,7 +237,7 @@ Executa a fase completa de load.
 ```python
 from src.load import executar_load_completo
 
-executar_load_completo(df, "output/dados_finais.csv")
+executar_load_completo(df, "data/output/dados_finais.csv")
 ```
 
 ### gerar_html_modelo_conceitual(df, output_path)
@@ -248,7 +248,7 @@ Gera arquivo HTML com diagrama ER interativo.
 | Parâmetro | Tipo | Padrão | Descrição |
 |-----------|------|--------|-----------|
 | df | pd.DataFrame | - | Dataset para estatísticas |
-| output_path | str | "output/modelo_conceitual.html" | Caminho de saída |
+| output_path | str | "data/output/modelo_conceitual.html" | Caminho de saída |
 
 **Retorno:** bool (sucesso/falha)
 
@@ -263,7 +263,7 @@ Gera script SQL completo para MySQL com Star Schema.
 
 **Retorno:** bool (sucesso/falha)
 
-**Arquivo gerado:** `output/comexstat_mysql_schema.sql`
+**Arquivo gerado:** `data/output/comexstat_mysql_schema.sql`
 
 **Conteúdo do SQL:**
 - DROP/CREATE DATABASE
@@ -320,7 +320,7 @@ from src.regressao import aplicar_regressao_completa
 from src.load import executar_load_completo
 
 # 1. Extrair dados
-df = ler_dados_csv("input/Exportacoes_reduzidos.csv")
+df = ler_dados_csv("data/input/Exportacoes_reduzidos.csv")
 
 # 2. Transformar dados
 df = detectar_valores_vazios(df)
@@ -331,7 +331,7 @@ metricas = aplicar_regressao_completa(df)
 print(f"Modelo R²: {metricas['r2']:.4f}")
 
 # 4. Carregar e gerar outputs
-executar_load_completo(df, "output/dados_finais.csv")
+executar_load_completo(df, "data/output/dados_finais.csv")
 ```
 
 ---
@@ -341,7 +341,7 @@ executar_load_completo(df, "output/dados_finais.csv")
 ### Caminhos de Arquivos (extract.py)
 
 ```python
-input/Exportacoes_reduzidos.csv  # Dados de exportação locais
+data/input/Exportacoes_reduzidos.csv  # Dados de exportação locais
 ```
 
 ### Caminhos de Dicionários (map.py)

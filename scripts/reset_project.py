@@ -6,7 +6,7 @@ Script de Limpeza e Reset do Projeto ETL COMEX Stat 2025
 Este script realiza a limpeza completa do projeto, removendo todos os dados
 gerados e preparando o ambiente para uma execução do zero.
 
-Uso: python reset_project.py
+Uso: python scripts/reset_project.py
 """
 
 import os
@@ -43,10 +43,12 @@ def limpar_diretorio(diretorio, preservar=None):
 def criar_diretorios_necessarios():
     """Cria os diretórios necessários se não existirem."""
     diretorios = [
-        'input',
-        'output',
-        'dicionarios',
-        'src'
+        'data/input',
+        'data/output',
+        'data/dictionaries',
+        'src',
+        'notebooks',
+        'scripts'
     ]
     
     for diretorio in diretorios:
@@ -77,7 +79,8 @@ def limpar_cache_python():
     """Remove cache do Python."""
     cache_dirs = [
         '__pycache__',
-        'src/__pycache__'
+        'src/__pycache__',
+        'notebooks/__pycache__'
     ]
     
     print(" Limpando cache do Python:")
@@ -88,13 +91,18 @@ def limpar_cache_python():
 
 def main():
     """Função principal de limpeza do projeto."""
+    # Mudar para diretório raiz
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+    os.chdir(project_root)
+    
     print("=" * 60)
     print(" INICIANDO LIMPEZA COMPLETA DO PROJETO")
     print("=" * 60)
     print(f" Data/Hora: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
     print()
     
-    # Arquivos fixos a preservar na pasta input
+    # Arquivos fixos a preservar na pasta data/input
     ARQUIVOS_FIXOS_INPUT = [
         'Exportacoes_reduzidos.csv',
         'Importacoes_reduzidos.csv',
@@ -110,8 +118,9 @@ def main():
     
     # 1. Limpar diretórios principais
     print(" ETAPA 1: LIMPANDO DIRETÓRIOS PRINCIPAIS")
-    limpar_diretorio('input', preservar=ARQUIVOS_FIXOS_INPUT)
-    limpar_diretorio('output')
+    limpar_diretorio('data/input', preservar=ARQUIVOS_FIXOS_INPUT)
+    limpar_diretorio('data/output')
+    limpar_diretorio('notebooks/output')
     print()
     
     # 2. Remover arquivos específicos
@@ -134,7 +143,7 @@ def main():
     
     # Verificar estado dos diretórios
     diretorios_status = {}
-    for diretorio in ['input', 'output', 'dicionarios', 'src']:
+    for diretorio in ['data/input', 'data/output', 'data/dictionaries', 'src', 'notebooks', 'notebooks/output', 'scripts']:
         if os.path.exists(diretorio):
             arquivos = [f for f in os.listdir(diretorio) if os.path.isfile(os.path.join(diretorio, f))]
             dirs = [d for d in os.listdir(diretorio) if os.path.isdir(os.path.join(diretorio, d))]
@@ -150,7 +159,8 @@ def main():
     print("=" * 60)
     print(" LIMPEZA CONCLUÍDA COM SUCESSO!")
     print(" Projeto pronto para execução do zero!")
-    print(" Execute: python main.py")
+    print(" Execute: python scripts/main.py")
+    print(" Ou inicie o Jupyter: jupyter notebook notebooks/")
     print("=" * 60)
 
 if __name__ == "__main__":

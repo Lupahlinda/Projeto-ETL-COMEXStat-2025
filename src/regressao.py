@@ -222,7 +222,7 @@ def aplicar_regressao_completa(df, produto=None):
     plt.tight_layout(rect=[0, 0.02, 1, 0.95])
     
     # Salva o gráfico com alta qualidade
-    nome_arquivo = f'output/grafico_previsao_{produto_alvo}.png' if produto else 'output/grafico_previsao_completo.png'
+    nome_arquivo = f'data/output/grafico_previsao_{produto_alvo}.png' if produto else 'data/output/grafico_previsao_completo.png'
     plt.savefig(nome_arquivo, dpi=150, bbox_inches='tight', facecolor='#f8f9fa')
     plt.show()
     print(f" Gráfico salvo em: {nome_arquivo}")

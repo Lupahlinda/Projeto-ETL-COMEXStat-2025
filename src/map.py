@@ -40,15 +40,12 @@ def expandir_urf(df: pd.DataFrame, dict_urf_path: str) -> pd.DataFrame:
     return df_merged
 
 def expandir_dados(df: pd.DataFrame) -> pd.DataFrame:
-    df = expandir_estados(df, r"dicionarios/dict_sg_uf.csv")
-    df = expandir_paises(df, r"dicionarios/dict_country.csv")
-    df = expandir_urf(df, r"dicionarios/dict_urf.csv")
-    df = expandir_ncm(df, r"dicionarios/dict_ncm_product.csv")
+    df = expandir_estados(df, r"data/dictionaries/dict_sg_uf.csv")
+    df = expandir_paises(df, r"data/dictionaries/dict_country.csv")
+    df = expandir_urf(df, r"data/dictionaries/dict_urf.csv")
+    df = expandir_ncm(df, r"data/dictionaries/dict_ncm_product.csv")
     # Remove a coluna flag se existir, sem filtrar registros
     if "flag" in df.columns:
         df = df.drop(columns=["flag"])
     print(f"Dados processados: {len(df)} registros")
     return df
-
-
-

@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Adicionar diretório raiz ao path para importar módulos
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.extract import baixar_csv, baixar_totais_validacao, ler_dados_csv
 from src.map import detectar_valores_vazios, expandir_dados
 from src.regressao import aplicar_regressao_completa
@@ -15,7 +21,8 @@ print("="*60)
 print("PIPELINE ETL - COMEX Stat 2025")
 print("="*60)
 print("\nEste pipeline irá processar dados de exportação brasileira")
-print("e gerar modelos de dados (SQL e HTML) baseados no Para-apresentacao.drawio.xml")
+print("e gerar modelos de dados, o modelo em SQL para banco de dados.")
+print("e o modelo em HTML para visualização (opcional).")
 print("\nEtapas do processo:")
 print("1. Carregamento de dados locais")
 print("2. Mapeamento e expansão de dados")
@@ -32,7 +39,7 @@ else:
 
 # Etapa 2: Carregamento e processamento inicial
 if solicitar_confirmacao("\nETAPA 2: CARREGAMENTO E PROCESSAMENTO INICIAL\n\nEsta etapa irá carregar o arquivo CSV de exportações, detectar valores vazios e expandir os dados para formato normalizado."):
-    df = ler_dados_csv("input/Exportacoes_reduzidos.csv")
+    df = ler_dados_csv("data/input/Exportacoes_reduzidos.csv")
     print(f"\nDados carregados: {len(df)} registros")
     
     df = detectar_valores_vazios(df)
@@ -62,6 +69,6 @@ print("\n" + "="*60)
 print("PROCESSO CONCLUÍDO COM SUCESSO!")
 print("="*60)
 print("\nArquivos gerados:")
-print("  - output/modelo_conceitual.html (Modelos Lógico e Dimensional)")
-print("  - output/comexstat_mysql_schema.sql (Script SQL)")
-print("  - output/grafico_previsao_completo.png (Gráfico de Regressão)")
+print("  - data/output/modelo_conceitual.html (Modelos Lógico e Dimensional)")
+print("  - data/output/comexstat_mysql_schema.sql (Script SQL)")
+print("  - data/output/grafico_previsao_completo.png (Gráfico de Regressão)")

@@ -29,14 +29,14 @@ A estrutura inicial e conceitos de ETL foram inspirados nesse repositório base,
 ##  Sumário
 
 - [Funcionalidades](#-funcionalidades)
-- [Estrutura de Pastas](#-estrutura-de-pastas)
 - [Como Executar](#-como-executar)
 - [Pipeline ETL](#-pipeline-etl)
 - [Arquivos Gerados](#-arquivos-gerados)
 - [Modelo de Dados](#-modelo-de-dados)
 - [Tecnologias](#-tecnologias)
 - [Estrutura do Código](#-estrutura-do-código)
-- [Documentação (Wiki)](#-documentação-wiki)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Documentação](#-documentação)
 - [Repositório Base](#-agradecimentos-e-créditos)
 - [Informações Acadêmicas](#-informações-acadêmicas)
 
@@ -50,51 +50,13 @@ A estrutura inicial e conceitos de ETL foram inspirados nesse repositório base,
 - **Visualização**: Gráficos comparativos (previsões vs reais, resíduos, distribuição)
 - **Modelagem**: Geração de modelo conceitual HTML e script SQL MySQL (Star Schema)
 
-##  Estrutura de Pastas
-
-```
-Projeto-ETL-COMEXStat-2025/
-├── dicionarios/          # Dicionários de dados para enriquecimento
-│   ├── dict_bloco.csv       # Blocos econômicos
-│   ├── dict_country.csv     # Países
-│   ├── dict_municipio.csv   # Municípios brasileiros
-│   ├── dict_ncm_product.csv # Produtos NCM
-│   ├── dict_sg_uf.csv       # Estados brasileiros
-│   ├── dict_urf.csv         # Unidades de Despacho
-│   └── dict_via.csv         # Vias de transporte
-├── input/                # Arquivos CSV de entrada (dados fixos)
-│   ├── Exportacoes_reduzidos.csv
-│   ├── Importacoes_reduzidos.csv
-│   ├── NCM.csv
-│   ├── NCM_UNIDADE.csv
-│   ├── PAIS.csv
-│   ├── PAIS_BLOCO.csv
-│   ├── UF.csv
-│   ├── UF_MUN.csv
-│   ├── URF.csv
-│   └── VIA.csv
-├── output/               # Arquivos gerados
-│   ├── dados_finais.csv        # Dataset processado
-│   ├── modelo_conceitual.html  # Diagrama ER interativo
-│   ├── comexstat_mysql_schema.sql # Script SQL MySQL
-│   └── grafico_previsao_completo.png # Visualização da regressão
-├── src/                  # Código fonte
-│   ├── extract.py        # Leitura de dados CSV
-│   ├── map.py            # Transformação e enriquecimento
-│   ├── regressao.py      # Análise preditiva
-│   ├── load.py           # Geração de modelo e SQL
-│   └── validate.py       # Validações
-├── main.py              # Script principal
-├── reset_project.py     # Script de limpeza/reset
-└── requirements.txt     # Dependências Python
-```
-
 ##  Como Executar
 
 ### Pré-requisitos
 - Python 3.8+
 - pip
 - (Linux) bash
+- (Opcional) Jupyter Notebook/Lab para execução interativa
 
 ### Instalação
 
@@ -105,37 +67,64 @@ cd Projeto-ETL-COMEXStat-2025
 
 # Instale as dependências
 pip install -r requirements.txt
+
+# Se desejar usar Jupyter Notebook (opcional)
+pip install jupyter notebook
+# ou
+pip install jupyterlab
 ```
 
 ### Execução
 
-#### Linux (Recomendado)
+#### Execução via Jupyter Notebooks (Recomendado)
+
+Para uma experiência interativa e melhor visualização dos resultados, recomendamos executar o projeto via Jupyter Notebooks.
+
+**Iniciar o Jupyter:**
+```bash
+# Iniciar Jupyter Notebook
+jupyter notebook notebooks/
+
+# Ou JupyterLab (interface mais moderna)
+jupyter lab notebooks/
+```
+
+**Sequência de Execução:**
+Execute os notebooks em ordem sequencial:
+
+1. **`00_Introducao.ipynb`** - Visão geral e configuração inicial
+2. **`01_Extract.ipynb`** - Extração de dados
+3. **`02_Transform.ipynb`** - Transformação e enriquecimento
+4. **`03_Regressao.ipynb`** - Modelagem preditiva
+5. **`04_Load.ipynb`** - Geração de modelos de dados
+
+#### Execução via Scripts Python
+
+##### Linux (Recomendado)
 ```bash
 # Executar pipeline ETL completo usando o script shell
-bash executar.sh
+bash scripts/executar.sh
 
 # Limpar projeto (remover outputs gerados)
-python reset_project.py
+python scripts/reset_project.py
 ```
 
-#### Windows / macOS / Outros
+##### Windows / macOS / Outros
 ```bash
 # Executar pipeline ETL completo
-python main.py
+python scripts/main.py
 
 # Limpar projeto (remover outputs gerados)
-python reset_project.py
+python scripts/reset_project.py
 ```
-
-**Nota:** O script `executar.sh` ativa automaticamente o ambiente virtual `venv_linux` no Linux antes de executar o pipeline.
 
 ##  Pipeline ETL
 
-### 1. Extração (`extract.py`)
-- Lê `input/Exportacoes_reduzidos.csv` com dados de exportação 2025
+### 1. Extração (`src/extract.py` / `notebooks/01_Extract.ipynb`)
+- Lê `data/input/Exportacoes_reduzidos.csv` com dados de exportação 2025
 - Colunas: CO_ANO, CO_MES, CO_NCM, CO_UNID, CO_PAIS, SG_UF_NCM, CO_VIA, CO_URF, QT_ESTAT, KG_LIQUIDO, VL_FOB, flag
 
-### 2. Transformação (`map.py`)
+### 2. Transformação (`src/map.py` / `notebooks/02_Transform.ipynb`)
 - **Detectar valores vazios**: Preenche com zeros
 - **Expandir estados**: Merge com dicionário de UF
 - **Expandir países**: Merge com dicionário de países
@@ -143,14 +132,14 @@ python reset_project.py
 - **Expandir produtos NCM**: Merge com dicionário de produtos
 - **Filtrar dados**: Remove registros com flag=0 (inválidos)
 
-### 3. Análise Preditiva (`regressao.py`)
+### 3. Análise Preditiva (`src/regressao.py` / `notebooks/03_Regressao.ipynb`)
 - **Modelo**: Regressão Linear com One-Hot Encoding para variáveis categóricas
 - **Features**: CO_ANO, CO_MES, CO_NCM, CO_UNID, CO_PAIS, SG_UF_NCM, CO_VIA, CO_URF, QT_ESTAT, KG_LIQUIDO
 - **Target**: VL_FOB (valor FOB da exportação)
 - **Métricas**: MSE, MAE, RMSE, R² Score
 - **Saída**: Gráfico 2x2 com previsões vs reais, resíduos, histograma e painel de métricas
 
-### 4. Carga/Modelagem (`load.py`)
+### 4. Carga/Modelagem (`src/load.py` / `notebooks/04_Load.ipynb`)
 - Gera modelo conceitual HTML com diagrama ER (Mermaid.js)
 - Gera script SQL MySQL com Star Schema:
   - Dimensões: tempo, produto, país, estado, via, URF
@@ -161,10 +150,10 @@ python reset_project.py
 
 | Arquivo | Descrição |
 |---------|-----------|
-| `output/dados_finais.csv` | Dataset completo enriquecido |
-| `output/modelo_conceitual.html` | Diagrama ER interativo (abra no navegador) |
-| `output/comexstat_mysql_schema.sql` | Script SQL para criar banco MySQL |
-| `output/grafico_previsao_completo.png` | Visualização da análise de regressão |
+| `data/output/dados_finais.csv` | Dataset completo enriquecido |
+| `data/output/modelo_conceitual.html` | Diagrama ER interativo (abra no navegador) |
+| `data/output/comexstat_mysql_schema.sql` | Script SQL para criar banco MySQL |
+| `data/output/grafico_previsao_completo.png` | Visualização da análise de regressão |
 
 ##  Modelo de Dados
 
@@ -191,35 +180,70 @@ O projeto implementa modelo dimensional **Star Schema** com 9 tabelas obrigatór
 - **scikit-learn**: Machine learning (regressão linear, métricas)
 - **matplotlib**: Visualização de dados
 - **numpy**: Operações numéricas
-
-##  Documentação (Wiki)
-
-📚 Acesse a documentação completa na **[Wiki do Projeto](https://github.com/Lupahlinda/Projeto-ETL-COMEXStat-2025/wiki)**
-
-Ou consulte os arquivos em [`docs/`](./docs/):
-- [Home](./docs/Home.md) - Visão geral
-- [Arquitetura ETL](./docs/Arquitetura-ETL.md) - Pipeline detalhado
-- [Modelo de Dados](./docs/Modelo-de-Dados.md) - Star Schema
-- [Guia de Uso](./docs/Guia-de-Uso.md) - Como executar
-- [API e Módulos](./docs/API-e-Modulos.md) - Documentação técnica
-
----
+- **jupyter**: Ambiente de desenvolvimento interativo
 
 ##  Estrutura do Código
 
-```
-src/
-├── extract.py      # ler_dados_csv(), baixar_csv()
-├── map.py          # detectar_valores_vazios(), expandir_dados(), agro_filtering()
-├── regressao.py    # aplicar_regressao_completa() - modelo ML
-├── load.py         # carregar_dados_banco(), gerar_sql_mysql_star_schema(), 
-│                   # gerar_html_modelo_conceitual(), executar_load_completo()
-└── validate.py     # Funções de validação de dados
+### Módulos Python (`src/`)
+- **extract.py**: `ler_dados_csv()`, `baixar_csv()`
+- **map.py**: `detectar_valores_vazios()`, `expandir_dados()`
+- **regressao.py**: `aplicar_regressao_completa()` - modelo ML
+- **load.py**: `carregar_dados_banco()`, `gerar_sql_mysql_star_schema()`, `gerar_html_modelo_conceitual()`, `executar_load_completo()`
+- **validate.py**: Funções de validação de dados
 
-Scripts principais:
-├── main.py              # Executa pipeline ETL completo
-└── reset_project.py     # Limpa outputs e cache
-```
+### Scripts Principais (`scripts/`)
+- **main.py**: Executa pipeline ETL completo
+- **reset_project.py**: Limpa outputs e cache
+- **executar.sh**: Script shell para execução facilitada
+
+### Jupyter Notebooks (`notebooks/`)
+- **00_Introducao.ipynb**: Visão geral e configuração
+- **01_Extract.ipynb**: Extração de dados
+- **02_Transform.ipynb**: Transformação e enriquecimento
+- **03_Regressao.ipynb**: Modelagem preditiva
+- **04_Load.ipynb**: Geração de modelos de dados
+
+##  Estrutura do Projeto
+
+Para uma visualização detalhada da estrutura de diretórios e arquivos do projeto, consulte o documento de estrutura completa em [`docs/Estrutura-do-Projeto.md`](./docs/Estrutura-do-Projeto.md).
+
+**Resumo dos principais diretórios:**
+- `data/`: Dados do projeto (input, output, dicionários)
+- `notebooks/`: Jupyter Notebooks para execução interativa
+- `scripts/`: Scripts Python principais
+- `src/`: Código fonte (módulos Python)
+- `docs/`: Documentação detalhada do projeto
+
+##  Documentação
+
+📚 A documentação completa está disponível na pasta [`docs/`](./docs/):
+
+- **[Home](./docs/Home.md)** - Visão geral do projeto
+- **[Estrutura do Projeto](./docs/Estrutura-do-Projeto.md)** - Estrutura completa de diretórios e arquivos
+- **[Arquitetura ETL](./docs/Arquitetura-ETL.md)** - Pipeline detalhado
+- **[Modelo de Dados](./docs/Modelo-de-Dados.md)** - Star Schema
+- **[Guia de Uso](./docs/Guia-de-Uso.md)** - Como executar
+- **[API e Módulos](./docs/API-e-Modulos.md)** - Documentação técnica
+
+---
+
+##  Repositório Base
+
+Este projeto foi desenvolvido com base no trabalho de **[Pedro Tuto](https://github.com/Pedro-Tuto)** - [ETL-Comexstat-export-2024](https://github.com/Pedro-Tuto/ETL-Comexstat-export-2024).
+
+---
+
+##  Informações Acadêmicas
+
+| | |
+|:---|:---|
+| **Disciplina** | Business Intelligence e Data Warehouse |
+| **Professor** | Rodrigo Gonçalves Pinto |
+| **Instituição** | IESB - Instituto de Educação Superior de Brasília |
+| **Campus** | Ceilândia - DF |
+| **Aluno** | Luis Henrique Costa |
+| **RA** | 24114290041 |
+| **Curso** | ADS - Análise e Desenvolvimento de Sistemas |
 
 ---
 

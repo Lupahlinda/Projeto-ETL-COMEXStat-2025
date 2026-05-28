@@ -22,8 +22,8 @@ def baixar_csv(url, filename):
     Returns:
         str: Caminho do arquivo local utilizado
     """
-    print("Usando dados locais (input/Exportacoes_reduzidos.csv)")
-    arquivo_local = "input/Exportacoes_reduzidos.csv"
+    print("Usando dados locais (data/input/Exportacoes_reduzidos.csv)")
+    arquivo_local = "data/input/Exportacoes_reduzidos.csv"
     if not os.path.exists(arquivo_local):
         raise FileNotFoundError(f"Arquivo não encontrado: {arquivo_local}")
     print(f"   Arquivo encontrado: {os.path.getsize(arquivo_local)/(1024*1024):.2f} MB")

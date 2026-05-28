@@ -8,16 +8,24 @@ Este guia fornece instruções passo a passo para executar o pipeline ETL, confi
 
 ### Software Necessário
 - **Python 3.8+** - Para executar o pipeline ETL
-- **MySQL Server** - Banco de dados relacional
-- **MySQL Workbench** - Interface gráfica para gerenciar o MySQL
-- **Power BI Desktop** - Ferramenta de BI para visualização de dados
+- **MySQL Server** - Banco de dados relacional (opcional)
+- **MySQL Workbench** - Interface gráfica para gerenciar o MySQL (opcional)
+- **Power BI Desktop** - Ferramenta de BI para visualização de dados (opcional)
+- **Jupyter Notebook** - Para execução interativa (recomendado)
 
 ### Bibliotecas Python
 ```bash
 pip install -r requirements.txt
 ```
 
-Dependências:
+Para execução via Jupyter Notebooks:
+```bash
+pip install jupyter notebook
+# ou
+pip install jupyterlab
+```
+
+Dependências principais:
 - pandas
 - requests
 - scikit-learn
@@ -28,40 +36,98 @@ Dependências:
 
 ## Execução do Pipeline ETL
 
-### Linux (Recomendado)
+O projeto oferece **duas formas** de execução:
 
-Execute o pipeline usando o script shell que ativa automaticamente o ambiente virtual:
+### 🎓 Via Jupyter Notebooks (Recomendado)
 
+Ideal para análise exploratória, debugging e aprendizado.
+
+#### Instalação do Jupyter
 ```bash
-bash executar.sh
+pip install jupyter notebook
 ```
 
-### Windows / macOS / Outros
-
-Execute o pipeline diretamente com Python:
-
+#### Iniciar os Notebooks
 ```bash
-python main.py
+# Navegar para o diretório raiz do projeto
+cd Projeto-ETL-COMEXStat-2025
+
+# Iniciar Jupyter Notebook na pasta notebooks/
+jupyter notebook notebooks/
+
+# Ou JupyterLab (interface mais moderna)
+jupyter lab notebooks/
 ```
 
-**Nota:** O pipeline usa exclusivamente dados locais do arquivo `input/Exportacoes_reduzidos.csv`. Não há opção de download automático.
+#### Sequência de Execução
+Execute os notebooks **em ordem sequencial**:
+
+1. **`00_Introducao.ipynb`** 
+   - Configuração inicial do ambiente
+   - Verificação da estrutura do projeto
+   - Importação de bibliotecas
+
+2. **`01_Extract.ipynb`**
+   - Carregamento de dados brutos
+   - Análise exploratória inicial
+   - Salvamento para próxima etapa
+
+3. **`02_Transform.ipynb`**
+   - Detecção de valores vazios
+   - Expansão com dicionários
+   - Enriquecimento dos dados
+
+4. **`03_Regressao.ipynb`**
+   - Aplicação de modelo de regressão
+   - Avaliação de métricas
+   - Geração de visualizações
+
+5. **`04_Load.ipynb`**
+   - Geração de script SQL
+   - Criação de documentação HTML
+   - Finalização do pipeline
+
+### ⚙️ Via Scripts Python
+
+Ideal para automação e execução em produção.
+
+#### Linux
+```bash
+# Executar pipeline completo
+bash scripts/executar.sh
+
+# Limpar projeto
+python scripts/reset_project.py
+```
+
+#### Windows / macOS / Outros
+```bash
+# Executar pipeline completo
+python scripts/main.py
+
+# Limpar projeto
+python scripts/reset_project.py
+```
 
 ---
 
 ## Arquivos Gerados
 
-Após a execução do pipeline, os seguintes arquivos serão criados na pasta `output/`:
+Após a execução do pipeline, os seguintes arquivos serão criados na pasta `data/output/`:
 
 | Arquivo | Descrição |
 |---------|-----------|
-| `dados_finais.csv` | Dataset completo processado e enriquecido |
+| `dados_carregados.csv` | Dados brutos após extração |
+| `dados_transformados.csv` | Dados após transformação |
+| `dados_com_previsoes.csv` | Dados com previsões do modelo |
+| `dados_finais.csv` | Dataset completo processado |
 | `modelo_conceitual.html` | Diagrama ER interativo (Mermaid.js) |
 | `comexstat_mysql_schema.sql` | Script SQL para criar banco MySQL |
 | `grafico_previsao_completo.png` | Visualização da análise de regressão |
 
 ---
 
-## Configuração do Banco de Dados MySQL
+## Configuração do Banco de Dados MySQL (Opcional)
 
 ### Passo 1: Iniciar o MySQL Server
 
@@ -72,16 +138,16 @@ Após a execução do pipeline, os seguintes arquivos serão criados na pasta `o
 ### Passo 2: Executar o Script SQL
 
 1. No MySQL Workbench, clique em **File** → **Run SQL Script...**
-2. Navegue até a pasta `output/` do projeto
+2. Navegue até a pasta `data/output/` do projeto
 3. Selecione o arquivo `comexstat_mysql_schema.sql`
 4. Clique em **Run** para executar o script
 
 O script irá:
 - Criar o banco de dados `comexstat_db`
-- Criar as tabelas de dimensão (dim_tempo, dim_produto, dim_pais, etc.)
+- Criar as tabelas de dimensão (dim_tempo, dim_ncm, dim_pais, etc.)
 - Criar a tabela fato (fato_exportacao)
 - Inserir os dados processados
-- Criar views otimizadas para Power BI
+- Criar índices para performance
 
 ### Passo 3: Verificar a Criação
 
@@ -94,19 +160,19 @@ SHOW TABLES;
 
 Você deve ver as seguintes tabelas:
 - dim_tempo
-- dim_produto
+- dim_ncm
 - dim_pais
-- dim_localidade
+- dim_estado
 - dim_via
+- dim_urf
 - dim_unidade
+- dim_bloco
+- dim_municipio
 - fato_exportacao
-- v_exportacoes_consolidadas (view)
-- v_analise_produto (view)
-- v_analise_pais (view)
 
 ---
 
-## Conexão com Power BI Desktop
+## Conexão com Power BI Desktop (Opcional)
 
 ### Passo 1: Criar Novo Relatório
 
@@ -135,10 +201,9 @@ Preencha os campos:
 
 1. Clique em **Conectar**
 2. O Power BI irá carregar as tabelas disponíveis
-3. Selecione as tabelas/views desejadas:
-   - `v_exportacoes_consolidadas` (recomendada - view principal)
-   - `v_analise_produto` (análise por produto)
-   - `v_analise_pais` (análise por país)
+3. Selecione as tabelas desejadas:
+   - `fato_exportacao` (tabela fato principal)
+   - `dim_*` (tabelas de dimensão)
 4. Clique em **Carregar**
 
 ### Passo 5: Criar Visualizações
@@ -164,11 +229,20 @@ Agora você pode criar dashboards usando os dados:
 
 ### Erro: Arquivo não encontrado
 
-**Problema:** `FileNotFoundError: Arquivo não encontrado: input/Exportacoes_reduzidos.csv`
+**Problema:** `FileNotFoundError: Arquivo não encontrado: data/input/Exportacoes_reduzidos.csv`
 
 **Solução:**
-- Verifique se o arquivo existe na pasta `input/`
-- O pipeline usa exclusivamente dados locais, certifique-se de que os arquivos de entrada estão presentes
+- Verifique se o arquivo existe na pasta `data/input/`
+- Certifique-se de que os arquivos de entrada estão presentes
+- Execute o notebook `00_Introducao.ipynb` para verificar a estrutura
+
+### Erro: Módulo não encontrado
+
+**Problema:** `ModuleNotFoundError: No module named 'src'`
+
+**Solução:**
+- Execute os notebooks a partir do diretório `notebooks/`
+- Ou execute o script usando `python scripts/main.py` do diretório raiz
 
 ### Erro: Conexão MySQL falhou
 
@@ -190,21 +264,49 @@ Agora você pode criar dashboards usando os dados:
 
 ---
 
-## Estrutura de Diretórios
+## Estrutura de Diretórios (Resumida)
+
+Para a estrutura completa, consulte [Estrutura do Projeto](Estrutura-do-Projeto.md).
 
 ```
 Projeto-ETL-COMEXStat-2025/
-├── dicionarios/          # Dicionários de dados
-├── input/                # Arquivos CSV de entrada
-├── output/               # Arquivos gerados pelo ETL
-├── src/                  # Código fonte Python
-├── docs/                 # Documentação
-├── main.py              # Script principal
+├── data/                  # Dados do projeto
+│   ├── input/           # Arquivos CSV de entrada
+│   ├── output/          # Arquivos gerados pelo ETL
+│   └── dictionaries/    # Dicionários de dados
+├── notebooks/           # Jupyter Notebooks
+├── scripts/             # Scripts Python principais
+├── src/                 # Código fonte Python
+├── docs/                # Documentação
 └── requirements.txt     # Dependências Python
 ```
+
+---
+
+## Dicas de Uso
+
+### Para Aprendizado
+- Use os **Jupyter Notebooks** para entender cada etapa
+- Execute célula por célula para ver os resultados intermediários
+- Modifique parâmetros e observe os impactos
+
+### Para Produção
+- Use os **scripts Python** para execução automatizada
+- Implemente agendamento (cron job, Windows Task Scheduler)
+- Monitore logs e resultados
+
+### Para Análise
+- Abra `data/output/modelo_conceitual.html` no navegador
+- Visualize o gráfico de regressão gerado
+- Explore o dataset final em `data/output/dados_finais.csv`
+
+---
+
 ## Suporte
 
 Para mais informações, consulte:
-- [Documentação do Modelo de Dados](./Modelo-de-Dados.md)
-- [Arquitetura do Pipeline ETL](./Arquitetura-ETL.md)
-- [API e Módulos Python](./API-e-Modulos.md)
+- [Estrutura do Projeto](./Estrutura-do-Projeto.md) - Estrutura completa de diretórios
+- [Modelo de Dados](./Modelo-de-Dados.md) - Star Schema detalhado
+- [Arquitetura do Pipeline ETL](./Arquitetura-ETL.md) - Fluxo detalhado
+- [API e Módulos Python](./API-e-Modulos.md) - Documentação técnica
+- [Home](./Home.md) - Visão geral do projeto

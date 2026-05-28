@@ -4,6 +4,9 @@
 echo "=== ETL COMEXStat - Script de Execução ==="
 echo ""
 
+# Voltar ao diretório raiz do projeto
+cd "$(dirname "$0")/.."
+
 # Ativar o ambiente virtual
 if [ -d "venv_linux" ]; then
     echo "Ativando ambiente virtual venv_linux..."
@@ -21,12 +24,12 @@ fi
 # Executar o script principal
 echo ""
 echo "Executando o script principal..."
-python main.py
+python scripts/main.py
 
 echo ""
 echo "=== Execução concluída ==="
 echo "Arquivos gerados:"
-echo "  - output/dados_finais.csv"
-echo "  - output/modelo_conceitual.html"
-echo "  - output/comexstat_mysql_schema.sql"
-echo "  - output/grafico_previsao_completo.png"
+echo "  - data/output/dados_finais.csv"
+echo "  - data/output/modelo_conceitual.html"
+echo "  - data/output/comexstat_mysql_schema.sql"
+echo "  - data/output/grafico_previsao_completo.png"
